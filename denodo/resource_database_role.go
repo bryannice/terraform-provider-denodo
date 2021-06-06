@@ -1,183 +1,184 @@
 package denodo
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
-	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceDatabaseRole() *schema.Resource {
 	return &schema.Resource{
-		Create: CreateDatabaseRole,
-		Delete: DeleteDatabaseRole,
-		Exists: nil,
-		Read: ReadDatabaseRole,
-		Update: UpdateDatabaseRole,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
+		CreateContext: createDatabaseRole,
+		DeleteContext: deleteDatabaseRole,
+		ReadContext:   readDatabaseRole,
+		UpdateContext: updateDatabaseRole,
 		Schema: map[string]*schema.Schema{
-			"admin": {
-				Default: false,
+			"admin": &schema.Schema{
+				Default:     false,
 				Description: "Admin privilege over a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"allPrivilege": {
-				Default: false,
+			"allPrivilege": &schema.Schema{
+				Default:     false,
 				Description: "All privileges CONNECT, CREATE, CREATE_DATA_SOURCE, CREATE_VIEW, CREATE_DATA_SERVICE, CREATE_FOLDER, EXECUTE, METADATA, WRITE, and FILE.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"connect": {
-				Default: false,
+			"connect": &schema.Schema{
+				Default:     false,
 				Description: "Connect privilege to the database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"create": {
-				Default: false,
+			"create": &schema.Schema{
+				Default:     false,
 				Description: "Create privilege for all objects in a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"createDataService": {
-				Default: false,
+			"createDataService": &schema.Schema{
+				Default:     false,
 				Description: "Create data service privilege in a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"createDataSource": {
-				Default: false,
+			"createDataSource": &schema.Schema{
+				Default:     false,
 				Description: "Create data source privilege in a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"createFolder": {
-				Default: false,
+			"createFolder": &schema.Schema{
+				Default:     false,
 				Description: "Create folder privilege in a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"createView": {
-				Default: false,
+			"createView": &schema.Schema{
+				Default:     false,
 				Description: "Create view privilege in a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"databaseName": {
+			"databaseName": &schema.Schema{
 				Description: "Name of the database the role belongs too.",
-				ForceNew: true,
-				Required: true,
-				Type: schema.TypeString,
+				ForceNew:    true,
+				Required:    true,
+				Type:        schema.TypeString,
 			},
-			"execute": {
-				Default: false,
+			"execute": &schema.Schema{
+				Default:     false,
 				Description: "Execute privilege on objects in a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"file": {
-				Default: false,
+			"file": &schema.Schema{
+				Default:     false,
 				Description: "File privilege in a database to browse through directories.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"grant": {
-				Default: true,
+			"grant": &schema.Schema{
+				Default:     true,
 				Description: "Grant privileges on a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"metaData": {
-				Default: false,
+			"metaData": &schema.Schema{
+				Default:     false,
 				Description: "Metadata privilege to get view information in the database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"monitorAdmin": {
-				Default: false,
+			"monitorAdmin": &schema.Schema{
+				Default:     false,
 				Description: "Monitoring admin role on the database.",
-				Optional: true,
-				Type: schema.TypeBool,
-			}
-			"name": {
+				Optional:    true,
+				Type:        schema.TypeBool,
+			},
+			"name": &schema.Schema{
 				Description: "Name of the role being created.",
-				ForceNew: true,
-				Required: true,
-				Type: schema.TypeString,
+				ForceNew:    true,
+				Required:    true,
+				Type:        schema.TypeString,
 			},
-			"revoke": {
-				Default: false,
+			"revoke": &schema.Schema{
+				Default:     false,
 				Description: "Revoke privileges on a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
-			"schedulerAdmin": {
+			"schedulerAdmin": &schema.Schema{
 				Description: "Scheduling admin role on the database.",
-				ForceNew: true,
-				Required: true,
-				Type: schema.TypeBool,
+				ForceNew:    true,
+				Required:    true,
+				Type:        schema.TypeBool,
 			},
-			"write": {
-				Default: false,
+			"write": &schema.Schema{
+				Default:     false,
 				Description: "Write privileges on elements in a database.",
-				Optional: true,
-				Type: schema.TypeBool,
+				Optional:    true,
+				Type:        schema.TypeBool,
 			},
 		},
 	}
 }
 
-func CreateDatabaseRole(d *schema.ResourceData, meta interface{}) error {
+func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var client *Client
+	var databaseName string
+	var diags diag.Diagnostics
+	var err error
 	var grantClause []string
+	var name string
+	var sqlStmt string
 
-	databaseName := d.Get("databaseName").(string)
-	name := d.Get("name").(string)
+	databaseName = d.Get("databaseName").(string)
+	name = d.Get("name").(string)
 
-	sqlStmt := fmt.Sprintf(
+	sqlStmt = fmt.Sprintf(
 		"CREATE ROLE %s\nGRANT ",
 		name,
 	)
 
-	if d.Get("admin") {
+	if d.Get("admin").(bool) {
 		grantClause = append(grantClause, "ADMIN")
 	}
-	if d.Get("allPrivilege") {
+	if d.Get("allPrivilege").(bool) {
 		grantClause = append(grantClause, "ALL PRIVILEGES")
 	}
-	if d.Get("connect") {
+	if d.Get("connect").(bool) {
 		grantClause = append(grantClause, "CONNECT")
 	}
-	if d.Get("create") {
+	if d.Get("create").(bool) {
 		grantClause = append(grantClause, "CREATE")
 	}
-	if d.Get("createDataService") {
+	if d.Get("createDataService").(bool) {
 		grantClause = append(grantClause, "CREATE_DATA_SERVICE")
 	}
-	if d.Get("createDataSource") {
+	if d.Get("createDataSource").(bool) {
 		grantClause = append(grantClause, "CREATE_DATA_SOURCE")
 	}
-	if d.Get("createFolder") {
+	if d.Get("createFolder").(bool) {
 		grantClause = append(grantClause, "CREATE_FOLDER")
 	}
-	if d.Get("createView") {
+	if d.Get("createView").(bool) {
 		grantClause = append(grantClause, "CREATE_VIEW")
 	}
-	if d.Get("execute") {
+	if d.Get("execute").(bool) {
 		grantClause = append(grantClause, "EXECUTE")
 	}
-	if d.Get("file") {
+	if d.Get("file").(bool) {
 		grantClause = append(grantClause, "FILE")
 	}
-	if d.Get("metaData") {
+	if d.Get("metaData").(bool) {
 		grantClause = append(grantClause, "METADATA")
 	}
-	if d.Get("write") {
+	if d.Get("write").(bool) {
 		grantClause = append(grantClause, "WRITE")
 	}
 
@@ -186,48 +187,54 @@ func CreateDatabaseRole(d *schema.ResourceData, meta interface{}) error {
 		strings.Join(grantClause, ", "),
 		databaseName,
 	)
-	log.Println("Executing statement: ", sqlStmt)
+	client = meta.(*Client)
 
-	db, err := connectToDenodo(meta.(*DenodoConfiguration))
-	if err != nul {
-		return err
-	}
-
-	_, err = db.Exec(sqlStmt)
-	if err != nul {
-		return err
+	err = client.ExecuteSQL(&sqlStmt)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.SetId(d.Get("name").(string))
 
-	return ReadDatabaseRole(d, meta)
+	diags = readDatabaseRole(ctx, d, meta)
+
+	return diags
 }
 
-func DeleteDatabaseRole(d *schema.ResourceData, meta interface{}) error {
-	name := d.Id()
+func deleteDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var client *Client
+	var diags diag.Diagnostics
+	var err error
+	var name string
+	var sqlStmt string
 
-	sqlStmt := fmt.Sprintf(
+	name = d.Id()
+	sqlStmt = fmt.Sprintf(
 		"DROP ROLE %s;",
 		name,
 	)
-	log.Println("Executing statement: ", sqlStmt)
+	client = meta.(*Client)
 
-	db, err := connectToDenodo(meta.(*DenodoConfiguration))
+	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(stmtSQL)
-	if err == nil {
+		return diag.FromErr(err)
+	} else {
 		d.SetId("")
 	}
-	return err
+
+	return diags
 }
 
-func ReadDatabaseRole(d *schema.ResourceData, meta interface{}) error {
-	name := d.Id()
+func readDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var client *Client
+	var diags diag.Diagnostics
+	var err error
+	var name string
+	var resultSet [][]string
+	var sqlStmt string
 
-	sqlStmt := fmt.Sprintf(
+	name = d.Id()
+	sqlStmt = fmt.Sprintf(
 		`
 SELECT DISTINCT
 	dbname AS db_name,
@@ -293,111 +300,89 @@ WHERE
 	rolename = '%s'`,
 		name,
 	)
-	log.Println("Executing statement: ", sqlStmt)
 
-	var dbName string
-	var roleName string
-	var dbAdmin bool
-	var dbConnect bool
-	var dbCreate bool
-	var dbCreateDataService bool
-	var dbCreateDataSource bool
-	var dbCreateFolder bool
-	var dbCreateView bool
-	var dbExecute bool
-	var dbFile bool
-	var dbMetaData bool
-	var dbWrite bool
+	client = meta.(*Client)
 
-	err = db.QueryRow(sqlStmt).Scan(
-		&dbName,
-		&roleName,
-		&dbAdmin,
-		&dbConnect,
-		&dbCreate,
-		&dbCreateDataService,
-		&dbCreateDataSource,
-		&dbCreateFolder,
-		&dbCreateView,
-		&dbExecute,
-		&dbFile,
-		&dbMetaData,
-		&dbWrite,
-	)
+	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	d.Set("databaseName", dbName)
-	d.Set("name", roleName)
-	d.Set("admin", dbAdmin)
-	d.Set("connect", dbConnect)
-	d.Set("create", dbCreate)
-	d.Set("createDataService", dbCreateDataService)
-	d.Set("createDataSource", dbCreateDataSource)
-	d.Set("createFolder", dbCreateFolder)
-	d.Set("createView", dbCreateView)
-	d.Set("execute", dbExecute)
-	d.Set("file", dbFile)
-	d.Set("metaData", dbMetaData)
-	d.Set("write", dbWrite)
+	d.Set("databaseName", resultSet[0][0])
+	d.Set("name", resultSet[0][1])
+	d.Set("admin", resultSet[0][2])
+	d.Set("connect", resultSet[0][3])
+	d.Set("create", resultSet[0][4])
+	d.Set("createDataService", resultSet[0][5])
+	d.Set("createDataSource", resultSet[0][6])
+	d.Set("createFolder", resultSet[0][7])
+	d.Set("createView", resultSet[0][8])
+	d.Set("execute", resultSet[0][9])
+	d.Set("file", resultSet[0][10])
+	d.Set("metaData", resultSet[0][11])
+	d.Set("write", resultSet[0][12])
 
-	return nil
+	return diags
 }
 
-func UpdateDatabaseRole(d *schema.ResourceData, meta interface{}) error {
+func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var client *Client
+	var databaseName string
+	var diags diag.Diagnostics
+	var err error
 	var grantClause []string
+	var name string
+	var sqlStmt string
 
-	databaseName := d.Get("databaseName").(string)
-	name := d.Get("name").(string)
-
-	sqlStmt := fmt.Sprintf(
+	databaseName = d.Get("databaseName").(string)
+	name = d.Get("name").(string)
+	sqlStmt = fmt.Sprintf(
 		"ALTER ROLE %s\n",
 		name,
 	)
 
-	if d.Get("grant") {
+	if d.Get("grant").(bool) {
 		sqlStmt += "GRANT "
 	}
-	if d.Get("revoke") {
+	if d.Get("revoke").(bool) {
 		sqlStmt += "REVOKE "
 	}
 
-	if ! d.Get("monitorAdmin") && ! d.Get("schedulerAdmin") {
-		if d.Get("admin") {
+	if !d.Get("monitorAdmin").(bool) && !d.Get("schedulerAdmin").(bool) {
+		if d.Get("admin").(bool) {
 			grantClause = append(grantClause, "ADMIN")
 		}
-		if d.Get("allPrivilege") {
+		if d.Get("allPrivilege").(bool) {
 			grantClause = append(grantClause, "ALL PRIVILEGES")
 		}
-		if d.Get("connect") {
+		if d.Get("connect").(bool) {
 			grantClause = append(grantClause, "CONNECT")
 		}
-		if d.Get("create") {
+		if d.Get("create").(bool) {
 			grantClause = append(grantClause, "CREATE")
 		}
-		if d.Get("createDataService") {
+		if d.Get("createDataService").(bool) {
 			grantClause = append(grantClause, "CREATE_DATA_SERVICE")
 		}
-		if d.Get("createDataSource") {
+		if d.Get("createDataSource").(bool) {
 			grantClause = append(grantClause, "CREATE_DATA_SOURCE")
 		}
-		if d.Get("createFolder") {
+		if d.Get("createFolder").(bool) {
 			grantClause = append(grantClause, "CREATE_FOLDER")
 		}
-		if d.Get("createView") {
+		if d.Get("createView").(bool) {
 			grantClause = append(grantClause, "CREATE_VIEW")
 		}
-		if d.Get("execute") {
+		if d.Get("execute").(bool) {
 			grantClause = append(grantClause, "EXECUTE")
 		}
-		if d.Get("file") {
+		if d.Get("file").(bool) {
 			grantClause = append(grantClause, "FILE")
 		}
-		if d.Get("metaData") {
+		if d.Get("metaData").(bool) {
 			grantClause = append(grantClause, "METADATA")
 		}
-		if d.Get("write") {
+		if d.Get("write").(bool) {
 			grantClause = append(grantClause, "WRITE")
 		}
 		sqlStmt += fmt.Sprintf(
@@ -406,10 +391,10 @@ func UpdateDatabaseRole(d *schema.ResourceData, meta interface{}) error {
 			databaseName,
 		)
 	} else {
-		if d.Get("monitorAdmin") {
+		if d.Get("monitorAdmin").(bool) {
 			grantClause = append(grantClause, "monitor_admin")
 		}
-		if d.Get("schedulerAdmin") {
+		if d.Get("schedulerAdmin").(bool) {
 			grantClause = append(grantClause, "scheduler_admin")
 		}
 		sqlStmt += fmt.Sprintf(
@@ -419,19 +404,16 @@ func UpdateDatabaseRole(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	sqlStmt += ";"
-	log.Println("Executing statement: ", sqlStmt)
+	client = meta.(*Client)
 
-	db, err := connectToDenodo(meta.(*DenodoConfiguration))
-	if err != nul {
-		return err
-	}
-
-	_, err = db.Exec(sqlStmt)
-	if err != nul {
-		return err
+	err = client.ExecuteSQL(&sqlStmt)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.SetId(d.Get("name").(string))
 
-	return ReadDatabaseRole(d, meta)
+	diags = readDatabaseRole(ctx, d, meta)
+
+	return diags
 }
