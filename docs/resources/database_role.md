@@ -3,7 +3,7 @@
 page_title: "denodo_database_role Resource - terraform-provider-denodo"
 subcategory: "database"
 description: |-
-  Provision and/or configure database role.
+Provision and/or configure database role.
 ---
 
 # denodo_database_role (Resource)
@@ -39,5 +39,4 @@ description: |-
 - **monitor_admin** (Boolean) Monitoring admin role on the database.
 - **revoke** (Boolean) Revoke privileges on a database.
 - **write** (Boolean) Write privileges on elements in a database.
-
 

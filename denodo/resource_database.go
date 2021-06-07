@@ -72,28 +72,48 @@ func createDatabase(ctx context.Context, d *schema.ResourceData, meta interface{
 	var charSet string
 	var checkViewRestrictions string
 	var client *Client
+	var costOptimization string
 	var description string
 	var diags diag.Diagnostics
 	var err error
 	var name string
 	var odbcAuthentication string
+	var querySimplification string
 	var sqlStmt string
+	var summaryRewrite string
 
 	authentication = d.Get("authentication").(string)
 	charSet = d.Get("char_set").(string)
 	checkViewRestrictions = d.Get("check_view_restrictions").(string)
+	costOptimization = d.Get("cost_optimization").(string)
 	description = d.Get("description").(string)
 	name = d.Get("name").(string)
 	odbcAuthentication = d.Get("odbc_authentication").(string)
+	querySimplification = d.Get("query_simplification").(string)
+	summaryRewrite = d.Get("summary_rewrite").(string)
 
 	sqlStmt = fmt.Sprintf(
-		"CREATE DATABASE %s\n%s\nCHARSET %s\nAUTHENTICATION %s\nODBC AUTHENTICATION %s\nCHECK_VIEW_RESTRICTIONS %s;",
+		`
+CREATE DATABASE %s
+%s
+CHARSET %s
+AUTHENTICATION %s
+ODBC AUTHENTICATION %s
+CHECK_VIEW_RESTRICTIONS %s;
+ALTER DATABASE %s
+COST OPTIMIZATION %s
+QUERY SIMPLIFICATION %s
+SUMMARY REWRITE %s;`,
 		name,
 		description,
 		charSet,
 		authentication,
 		odbcAuthentication,
 		checkViewRestrictions,
+		name,
+		costOptimization,
+		querySimplification,
+		summaryRewrite,
 	)
 	client = meta.(*Client)
 
@@ -173,16 +193,16 @@ func updateDatabase(ctx context.Context, d *schema.ResourceData, meta interface{
 	var name string
 	var odbcAuthentication string
 	var querySimplification string
-	var summaryRewrite string
 	var sqlStmt string
+	var summaryRewrite string
 
 	authentication = d.Get("authentication").(string)
 	charSet = d.Get("char_set").(string)
 	costOptimization = d.Get("cost_optimization").(string)
 	name = d.Get("name").(string)
 	odbcAuthentication = d.Get("odbc_authentication").(string)
-	summaryRewrite = d.Get("summary_rewrite").(string)
 	querySimplification = d.Get("query_simplification").(string)
+	summaryRewrite = d.Get("summary_rewrite").(string)
 
 	sqlStmt = fmt.Sprintf(
 		"ALTER DATABASE %s",

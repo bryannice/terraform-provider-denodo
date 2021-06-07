@@ -24,32 +24,38 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"database": &schema.Schema{
 				DefaultFunc: schema.EnvDefaultFunc("DENODO_DATABASE", ""),
+				Description: "Database initial connection will be made too.",
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"host": &schema.Schema{
 				DefaultFunc: schema.EnvDefaultFunc("DENODO_HOST", nil),
+				Description: "Host to the Denodo platform.",
 				Required:    true,
 				Type:        schema.TypeString,
 			},
 			"password": &schema.Schema{
 				DefaultFunc: schema.EnvDefaultFunc("DENODO_PASSWORD", "admin"),
+				Description: "Password used to connect to the Denodo platform.",
 				Required:    true,
 				Sensitive:   true,
 				Type:        schema.TypeString,
 			},
 			"port": &schema.Schema{
 				DefaultFunc: schema.EnvDefaultFunc("DENODO_PORT", 9996),
+				Description: "Port to the Denodo platform.",
 				Required:    true,
 				Type:        schema.TypeInt,
 			},
 			"ssl_mode": &schema.Schema{
 				DefaultFunc: schema.EnvDefaultFunc("DENODO_SSL_MODE", "require"),
+				Description: "SSL mode used to connect to the Denodo platform. Acceptable values disable, allow, prefer, require",
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"username": &schema.Schema{
 				DefaultFunc: schema.EnvDefaultFunc("DENODO_USERNAME", "admin"),
+				Description: "Username used to connect to the Denodo platform.",
 				Required:    true,
 				Sensitive:   true,
 				Type:        schema.TypeString,

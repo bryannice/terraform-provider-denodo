@@ -22,7 +22,7 @@ resource "denodo_database" "db" {
   cost_optimization = var.denodo_database_cost_optimization
   description = var.denodo_database_description
   name = var.denodo_database_name
-  summary_rewrite = var.summary_rewrite
+  summary_rewrite = var.denodo_database_summary_rewrite
   query_simplification = var.denodo_database_query_simplification
 }
 
@@ -47,15 +47,22 @@ resource "denodo_jdbc_data_source" "db_ds" {
   username = var.data_source_username
 }
 
+data "denodo_jdbc_data_source_table" "jdst" {
+  catalog_name = var.data_source_catalog_name
+  database = denodo_database.db.id
+  name = denodo_jdbc_data_source.db_ds.id
+  schema_name = var.data_source_schema_name
+}
+
 resource "denodo_base_view" "db_bv" {
-  data_source_database_type = var.data_source_database_type
-  data_source_database_version = var.data_source_database_version
-  database_uri = var.data_source_database_uri
-  driver_class_name = var.data_source_driver_class_name
-  folder = denodo_folder.db_folder_ds.id
+  data_source_catalog_name = var.data_source_catalog_name
+  data_source_database = denodo_database.db.id
+  data_source_name = denodo_jdbc_data_source.db_ds.id
+  data_source_schema_name = var.data_source_schema_name
+  data_source_table_name = var.data_source_table_name
+  database = denodo_database.db.id
+  folder = denodo_folder.db_folder_bv.id
   name = var.data_source_name
-  password = var.data_source_password
-  username = var.data_source_username
 }
 
 resource "denodo_database_role" "db_role_read" {
@@ -108,11 +115,4 @@ resource "denodo_user" "db_usr_dev" {
   password = var.denodo_dev_user_password
   roles = denodo_database_role.db_role_dev.id
   username = "test_read_user"
-}
-
-data "denodo_jdbc_data_source_table" "jdst" {
-  catalog_name = var.data_source_catalog_name
-  database = var.data_source_database
-  name = var.data_source_name
-  schema_name = var.data_source_schema_name
 }
