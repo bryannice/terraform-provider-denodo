@@ -8,7 +8,7 @@ description: |-
 
 # denodo Provider
 
-
+Provider to support administrative activities on the Denodo Platform. This provider is built to interact with Denodo 8.0.
 
 
 

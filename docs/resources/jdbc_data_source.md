@@ -3,7 +3,7 @@
 page_title: "denodo_jdbc_data_source Resource - terraform-provider-denodo"
 subcategory: "data source"
 description: |-
-  Provision and/or configure jdbc data source
+  Provision and/or configure JDBC data source.
 ---
 
 # denodo_jdbc_data_source (Resource)

@@ -16,8 +16,8 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"denodo_base_view":        resourceBaseView(),
 			"denodo_database":         resourceDatabase(),
+			"denodo_database_folder":  resourceDatabaseFolder(),
 			"denodo_database_role":    resourceDatabaseRole(),
-			"denodo_folder":           resourceFolder(),
 			"denodo_jdbc_data_source": resourceJDBCDataSource(),
 			"denodo_user":             resourceUser(),
 		},

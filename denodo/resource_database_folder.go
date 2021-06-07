@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceFolder() *schema.Resource {
+func resourceDatabaseFolder() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: createFolder,
-		DeleteContext: deleteFolder,
-		ReadContext:   readFolder,
-		UpdateContext: updateFolder,
+		CreateContext: createDatabaseFolder,
+		DeleteContext: deleteDatabaseFolder,
+		ReadContext:   readDatabaseFolder,
+		UpdateContext: updateDatabaseFolder,
 		Schema: map[string]*schema.Schema{
 			"copy": &schema.Schema{
 				Default:     false,
@@ -72,7 +72,7 @@ func resourceFolder() *schema.Resource {
 	}
 }
 
-func createFolder(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func createDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
 	var database string
 	var description string
@@ -103,12 +103,12 @@ CREATE FOLDER %s
 
 	d.SetId(d.Get("folder_path").(string))
 
-	diags = readFolder(ctx, d, meta)
+	diags = readDatabaseFolder(ctx, d, meta)
 
 	return diags
 }
 
-func deleteFolder(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func deleteDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
 	var database string
 	var diags diag.Diagnostics
@@ -138,7 +138,7 @@ DROP FOLDER %s CASCADE;`,
 	return diags
 }
 
-func readFolder(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func readDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
 	var database string
 	var diags diag.Diagnostics
@@ -171,7 +171,7 @@ DESC FOLDER '%s';`,
 	return diags
 }
 
-func updateFolder(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func updateDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
 	var copy bool
 	var copyNew string
@@ -248,7 +248,7 @@ ALTER FOLDER '%s'
 
 	d.SetId(d.Get("folder_path").(string))
 
-	diags = readFolder(ctx, d, meta)
+	diags = readDatabaseFolder(ctx, d, meta)
 
 	return diags
 }

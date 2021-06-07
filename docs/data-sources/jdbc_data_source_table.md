@@ -3,7 +3,7 @@
 page_title: "denodo_jdbc_data_source_table Data Source - terraform-provider-denodo"
 subcategory: "data source"
 description: |-
-  Fetch objects in a jdbc data source.
+  Fetch objects from a JDBC data source.
 ---
 
 # denodo_jdbc_data_source_table (Data Source)

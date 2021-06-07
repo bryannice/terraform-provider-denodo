@@ -47,6 +47,17 @@ resource "denodo_jdbc_data_source" "db_ds" {
   username = var.data_source_username
 }
 
+resource "denodo_base_view" "db_bv" {
+  data_source_database_type = var.data_source_database_type
+  data_source_database_version = var.data_source_database_version
+  database_uri = var.data_source_database_uri
+  driver_class_name = var.data_source_driver_class_name
+  folder = denodo_folder.db_folder_ds.id
+  name = var.data_source_name
+  password = var.data_source_password
+  username = var.data_source_username
+}
+
 resource "denodo_database_role" "db_role_read" {
   database_name = denodo_database.db.id
   name = format("%s-%s",denodo_database.db.id,"read")
