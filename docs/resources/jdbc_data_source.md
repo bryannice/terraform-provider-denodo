@@ -3,7 +3,7 @@
 page_title: "denodo_jdbc_data_source Resource - terraform-provider-denodo"
 subcategory: "data source"
 description: |-
-Provision and/or configure JDBC data source.
+  Provision and/or configure JDBC data source.
 ---
 
 # denodo_jdbc_data_source (Resource)
@@ -37,7 +37,7 @@ Provision and/or configure JDBC data source.
 - **folder** (String) Name of the folder where the data source will be stored.
 - **id** (String) The ID of this resource.
 - **ignore_trailing_spaces** (String) If true, the Server removes the space characters at the end of text type values of the results returned by these data source’s views.
-- **initial_size** (String) Number of connections with which the pool is initialized. (default value: 4)
+- **initial_size** (Number) Number of connections with which the pool is initialized. (default value: 4)
 - **isolation_level** (String) Sets the desired isolation level for the queries and transactions executed in the database. If not present, the data source uses the default isolation level of the database.
 - **jdbc_driver_properties** (String) List of name/value pairs that will be passed to the JDBC driver when creating connection with this database.
 - **kerberos_properties** (String) List of name/value pairs that will be passed to the JDBC driver when creating connection with this database. The properties on this list are meant to configure the Kerberos authentication mechanism between the Virtual DataPort server and the database.
@@ -59,4 +59,5 @@ Provision and/or configure JDBC data source.
 - **use_for_query_optimization** (String) Data load configuration to optimize for data movement workload.
 - **validation_query** (String) SQL query executed by the connection pool to check if a connection is still valid; also known as “ping query”. It is only used when at least one of TESTONBORROW, TESTONRETURN or TESTWHILEIDLE are true. (default value: depends on the adapter)
 - **work_dir** (String) Work directory used by bulk load configuration. (Oracle only)
+
 

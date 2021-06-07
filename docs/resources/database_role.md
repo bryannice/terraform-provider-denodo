@@ -3,7 +3,7 @@
 page_title: "denodo_database_role Resource - terraform-provider-denodo"
 subcategory: "database"
 description: |-
-Provision and/or configure database role.
+  Provision and/or configure database role.
 ---
 
 # denodo_database_role (Resource)
@@ -19,12 +19,11 @@ Provision and/or configure database role.
 
 - **database_name** (String) Name of the database the role belongs too.
 - **name** (String) Name of the role being created.
-- **scheduler_admin** (Boolean) Scheduling admin role on the database.
 
 ### Optional
 
 - **admin** (Boolean) Admin privilege over a database.
-- **all_privilege** (Boolean) All privileges CONNECT, CREATE, CREATE_DATA_SOURCE, CREATE_VIEW, CREATE_DATA_SERVICE, CREATE_FOLDER, EXECUTE, METADATA, WRITE, and FILE.
+- **all_privileges** (Boolean) All privileges CONNECT, CREATE, CREATE_DATA_SOURCE, CREATE_VIEW, CREATE_DATA_SERVICE, CREATE_FOLDER, EXECUTE, METADATA, WRITE, and FILE.
 - **connect** (Boolean) Connect privilege to the database.
 - **create** (Boolean) Create privilege for all objects in a database.
 - **create_data_service** (Boolean) Create data service privilege in a database.
@@ -38,5 +37,7 @@ Provision and/or configure database role.
 - **meta_data** (Boolean) Metadata privilege to get view information in the database.
 - **monitor_admin** (Boolean) Monitoring admin role on the database.
 - **revoke** (Boolean) Revoke privileges on a database.
+- **scheduler_admin** (Boolean) Scheduling admin role on the database.
 - **write** (Boolean) Write privileges on elements in a database.
+
 

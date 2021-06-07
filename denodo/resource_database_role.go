@@ -22,7 +22,7 @@ func resourceDatabaseRole() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"all_privilege": &schema.Schema{
+			"all_privileges": &schema.Schema{
 				Default:     false,
 				Description: "All privileges CONNECT, CREATE, CREATE_DATA_SOURCE, CREATE_VIEW, CREATE_DATA_SERVICE, CREATE_FOLDER, EXECUTE, METADATA, WRITE, and FILE.",
 				Optional:    true,
@@ -113,9 +113,9 @@ func resourceDatabaseRole() *schema.Resource {
 				Type:        schema.TypeBool,
 			},
 			"scheduler_admin": &schema.Schema{
+				Default:     false,
 				Description: "Scheduling admin role on the database.",
-				ForceNew:    true,
-				Required:    true,
+				Optional:    true,
 				Type:        schema.TypeBool,
 			},
 			"write": &schema.Schema{
@@ -137,18 +137,20 @@ func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	var name string
 	var sqlStmt string
 
-	databaseName = d.Get("databaseName").(string)
+	databaseName = d.Get("database_name").(string)
 	name = d.Get("name").(string)
 
 	sqlStmt = fmt.Sprintf(
-		"CREATE ROLE %s\nGRANT ",
+		`
+CREATE ROLE %s
+GRANT `,
 		name,
 	)
 
 	if d.Get("admin").(bool) {
 		grantClause = append(grantClause, "ADMIN")
 	}
-	if d.Get("allPrivilege").(bool) {
+	if d.Get("all_privileges").(bool) {
 		grantClause = append(grantClause, "ALL PRIVILEGES")
 	}
 	if d.Get("connect").(bool) {
@@ -157,16 +159,16 @@ func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	if d.Get("create").(bool) {
 		grantClause = append(grantClause, "CREATE")
 	}
-	if d.Get("createDataService").(bool) {
+	if d.Get("create_data_service").(bool) {
 		grantClause = append(grantClause, "CREATE_DATA_SERVICE")
 	}
-	if d.Get("createDataSource").(bool) {
+	if d.Get("create_data_source").(bool) {
 		grantClause = append(grantClause, "CREATE_DATA_SOURCE")
 	}
-	if d.Get("createFolder").(bool) {
+	if d.Get("create_folder").(bool) {
 		grantClause = append(grantClause, "CREATE_FOLDER")
 	}
-	if d.Get("createView").(bool) {
+	if d.Get("create_view").(bool) {
 		grantClause = append(grantClause, "CREATE_VIEW")
 	}
 	if d.Get("execute").(bool) {
@@ -175,7 +177,7 @@ func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	if d.Get("file").(bool) {
 		grantClause = append(grantClause, "FILE")
 	}
-	if d.Get("metaData").(bool) {
+	if d.Get("meta_data").(bool) {
 		grantClause = append(grantClause, "METADATA")
 	}
 	if d.Get("write").(bool) {
@@ -187,6 +189,7 @@ func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 		strings.Join(grantClause, ", "),
 		databaseName,
 	)
+
 	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
@@ -194,7 +197,7 @@ func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.FromErr(err)
 	}
 
-	d.SetId(d.Get("name").(string))
+	d.SetId(name)
 
 	diags = readDatabaseRole(ctx, d, meta)
 
@@ -227,77 +230,20 @@ func deleteDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 
 func readDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
+	var databaseName string
 	var diags diag.Diagnostics
 	var err error
 	var name string
 	var resultSet [][]string
 	var sqlStmt string
 
+	databaseName = d.Get("database_name").(string)
 	name = d.Id()
 	sqlStmt = fmt.Sprintf(
 		`
-SELECT DISTINCT
-	dbname AS db_name,
-	rolename AS role_name,
-	CASE
-		WHEN dbadmin like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_admin,
-	CASE
-		WHEN dbconnect like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_connect,
-	CASE
-		WHEN dbcreate like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_create,
-	CASE
-		WHEN dbcreatedataservice like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_create_data_service,
-	CASE
-		WHEN dbcreatedatasource like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_create_data_source,
-	CASE
-		WHEN dbcreatefolder like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_create_folder,
-	CASE
-		WHEN dbcreateview like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_create_view,
-	CASE
-		WHEN dbexecute like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_execute,
-	CASE
-		WHEN dbfile like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_file,
-	CASE
-		WHEN dbmetadata like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_meta_data,
-	CASE
-		WHEN dbwrite like '%true%'
-		THEN 1
-		ELSE 0
-	END AS db_write
-FROM
-	CATALOG_PERMISSIONS()
-WHERE
-	rolename = '%s'`,
+CONNECT DATABASE %s;
+DESC ROLE %s;`,
+		databaseName,
 		name,
 	)
 
@@ -308,19 +254,10 @@ WHERE
 		return diag.FromErr(err)
 	}
 
-	d.Set("databaseName", resultSet[0][0])
-	d.Set("name", resultSet[0][1])
-	d.Set("admin", resultSet[0][2])
-	d.Set("connect", resultSet[0][3])
-	d.Set("create", resultSet[0][4])
-	d.Set("createDataService", resultSet[0][5])
-	d.Set("createDataSource", resultSet[0][6])
-	d.Set("createFolder", resultSet[0][7])
-	d.Set("createView", resultSet[0][8])
-	d.Set("execute", resultSet[0][9])
-	d.Set("file", resultSet[0][10])
-	d.Set("metaData", resultSet[0][11])
-	d.Set("write", resultSet[0][12])
+	if len(resultSet) != 0 {
+		d.Set("name", name)
+		d.Set("database_name", databaseName)
+	}
 
 	return diags
 }
@@ -334,7 +271,7 @@ func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	var name string
 	var sqlStmt string
 
-	databaseName = d.Get("databaseName").(string)
+	databaseName = d.Get("database_name").(string)
 	name = d.Get("name").(string)
 	sqlStmt = fmt.Sprintf(
 		"ALTER ROLE %s\n",
@@ -348,11 +285,11 @@ func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 		sqlStmt += "REVOKE "
 	}
 
-	if !d.Get("monitorAdmin").(bool) && !d.Get("schedulerAdmin").(bool) {
+	if !d.Get("monitor_admin").(bool) && !d.Get("scheduler_admin").(bool) {
 		if d.Get("admin").(bool) {
 			grantClause = append(grantClause, "ADMIN")
 		}
-		if d.Get("allPrivilege").(bool) {
+		if d.Get("all_privileges").(bool) {
 			grantClause = append(grantClause, "ALL PRIVILEGES")
 		}
 		if d.Get("connect").(bool) {
@@ -361,16 +298,16 @@ func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 		if d.Get("create").(bool) {
 			grantClause = append(grantClause, "CREATE")
 		}
-		if d.Get("createDataService").(bool) {
+		if d.Get("create_data_service").(bool) {
 			grantClause = append(grantClause, "CREATE_DATA_SERVICE")
 		}
-		if d.Get("createDataSource").(bool) {
+		if d.Get("create_data_source").(bool) {
 			grantClause = append(grantClause, "CREATE_DATA_SOURCE")
 		}
-		if d.Get("createFolder").(bool) {
+		if d.Get("create_folder").(bool) {
 			grantClause = append(grantClause, "CREATE_FOLDER")
 		}
-		if d.Get("createView").(bool) {
+		if d.Get("create_view").(bool) {
 			grantClause = append(grantClause, "CREATE_VIEW")
 		}
 		if d.Get("execute").(bool) {
@@ -379,7 +316,7 @@ func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 		if d.Get("file").(bool) {
 			grantClause = append(grantClause, "FILE")
 		}
-		if d.Get("metaData").(bool) {
+		if d.Get("meta_data").(bool) {
 			grantClause = append(grantClause, "METADATA")
 		}
 		if d.Get("write").(bool) {
@@ -391,10 +328,10 @@ func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 			databaseName,
 		)
 	} else {
-		if d.Get("monitorAdmin").(bool) {
+		if d.Get("monitor_admin").(bool) {
 			grantClause = append(grantClause, "monitor_admin")
 		}
-		if d.Get("schedulerAdmin").(bool) {
+		if d.Get("scheduler_admin").(bool) {
 			grantClause = append(grantClause, "scheduler_admin")
 		}
 		sqlStmt += fmt.Sprintf(

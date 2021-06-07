@@ -13,6 +13,7 @@ func resourceBaseView() *schema.Resource {
 		CreateContext: createBaseView,
 		DeleteContext: deleteBaseView,
 		ReadContext:   readBaseView,
+		UpdateContext: updateBaseView,
 		Schema: map[string]*schema.Schema{
 			"database": &schema.Schema{
 				Description: "Database where the base view will reside.",
@@ -178,15 +179,8 @@ func readBaseView(ctx context.Context, d *schema.ResourceData, meta interface{})
 
 	sqlStmt = fmt.Sprintf(
 		`
-SELECT
-	name,
-	database_name,
-	folder
-FROM
-	GET_VIEWS()
-WHERE
-	database_name = '%s'
-	and name = '%s';`,
+CONNECT DATABASE %s;
+DESC VIEW %s;`,
 		dataSourceDatabase,
 		name,
 	)
@@ -198,9 +192,15 @@ WHERE
 		return diag.FromErr(err)
 	}
 
-	d.Set("name", resultSet[0][0])
-	d.Set("data_source_database", resultSet[0][1])
-	d.Set("folder", resultSet[0][2])
+	if len(resultSet) != 0 {
+		d.Set("name", name)
+		d.Set("database", dataSourceDatabase)
+	}
 
+	return diags
+}
+
+func updateBaseView(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	return diags
 }

@@ -3,7 +3,7 @@
 page_title: "denodo_database Resource - terraform-provider-denodo"
 subcategory: "database"
 description: |-
-Provision and/or configure database.
+  Provision and/or configure database.
 ---
 
 # denodo_database (Resource)
@@ -23,10 +23,12 @@ Provision and/or configure database.
 
 - **authentication** (String) Authenication method the database will use.
 - **char_set** (String) Setting the charset. Valid values are UNICODE, RESTRICTED, or DEFAULT.
+- **check_view_restrictions** (String) The section Column Privileges, Row Restrictions and Custom Policies Are Always Propagated of the Upgrade Guide explains the implications of changing this parameter.
 - **cost_optimization** (String) Enables or disables the cost-based optimization on this database.
 - **description** (String) The description of the database.
 - **id** (String) The ID of this resource.
 - **odbc_authentication** (String) ODBC Authenication method it will use. Valid values are NORMAL or KERBEROS.
 - **query_simplification** (String) Enables or disables automatic simplification of queries on the database. Valid values are ON, OFF, or DEFAULT.
 - **summary_rewrite** (String) Enables or disables the summary rewrite optimization on the database. Valid values are ON, OFF, or DEFAULT.
+
 

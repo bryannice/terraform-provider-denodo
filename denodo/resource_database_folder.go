@@ -42,7 +42,7 @@ func resourceDatabaseFolder() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"description": &schema.Schema{
-				Default:     "",
+				Default:     "Folder",
 				Description: "Description of the folder.",
 				Optional:    true,
 				Type:        schema.TypeString,
@@ -88,8 +88,8 @@ func createDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta inte
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
-CREATE FOLDER %s
-%s;`,
+CREATE FOLDER '%s'
+DESCRIPTION '%s';`,
 		database,
 		folderPath,
 		description,

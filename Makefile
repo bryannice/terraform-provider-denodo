@@ -45,13 +45,22 @@ clean-build:
 	@rm -rf ~/.terraform.d
 	@echo "$(BOLD)$(GREEN)Completed cleaning up working directory.$(RESET)"
 
-.PHONY: clean-test
-clean-test:
+.PHONY: clean-data-example
+clean-data-example:
 	@echo "$(BOLD)$(YELLOW)Cleaning up working directory.$(RESET)"
-	@rm -rf examples/data_source_jdbc_data_source_table/.terraform
-	@rm -rf examples/data_source_jdbc_data_source_table/.terraform.lock.hcl
-	@rm -rf examples/data_source_jdbc_data_source_table/terraform.tfstate
-	@rm -rf examples/data_source_jdbc_data_source_table/terraform.tfstate.backup
+	@rm -rf examples/data_source/.terraform
+	@rm -rf examples/data_source/.terraform.lock.hcl
+	@rm -rf examples/data_source/terraform.tfstate
+	@rm -rf examples/data_source/terraform.tfstate.backup
+	@echo "$(BOLD)$(GREEN)Completed cleaning up working directory.$(RESET)"
+
+.PHONY: clean-resource-example
+clean-resource-example:
+	@echo "$(BOLD)$(YELLOW)Cleaning up working directory.$(RESET)"
+	@rm -rf examples/resource/.terraform
+	@rm -rf examples/resource/.terraform.lock.hcl
+	@rm -rf examples/resource/terraform.tfstate
+	@rm -rf examples/resource/terraform.tfstate.backup
 	@echo "$(BOLD)$(GREEN)Completed cleaning up working directory.$(RESET)"
 
 .PHONY: fmt
@@ -67,9 +76,13 @@ install: clean-build build
 	@mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	@mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}/${BINARY}_v${VERSION}
 
-.PHONY: test-examples
-test-examples: clean-test
-	@cd examples/data_source_jdbc_data_source_table; terraform init; terraform apply --auto-approve; cd -
+.PHONY: test-data-example
+test-data-example: clean-data-example
+	@cd examples/data_source; terraform fmt; terraform init; terraform apply --auto-approve; cd -
+
+.PHONY: test-resource-example
+test-resource-example: clean-resource-example
+	@cd examples/resource; terraform fmt; terraform init; terraform apply --auto-approve; cd -
 
 .PHONY: test
 test:

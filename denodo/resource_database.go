@@ -27,6 +27,12 @@ func resourceDatabase() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
+			"check_view_restrictions": &schema.Schema{
+				Default:     "DEFAULT",
+				Description: "The section Column Privileges, Row Restrictions and Custom Policies Are Always Propagated of the Upgrade Guide explains the implications of changing this parameter.",
+				Optional:    true,
+				Type:        schema.TypeString,
+			},
 			"cost_optimization": &schema.Schema{
 				Default:     "DEFAULT",
 				Description: "Enables or disables the cost-based optimization on this database.",
@@ -95,7 +101,7 @@ func createDatabase(ctx context.Context, d *schema.ResourceData, meta interface{
 	sqlStmt = fmt.Sprintf(
 		`
 CREATE DATABASE %s
-%s
+'%s'
 CHARSET %s
 AUTHENTICATION %s
 ODBC AUTHENTICATION %s

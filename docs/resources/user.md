@@ -3,7 +3,7 @@
 page_title: "denodo_user Resource - terraform-provider-denodo"
 subcategory: "user"
 description: |-
-Provision and/or configure user connecting to platform.
+  Provision and/or configure user connecting to platform.
 ---
 
 # denodo_user (Resource)
@@ -28,4 +28,5 @@ Provision and/or configure user connecting to platform.
 - **grant** (Boolean) Grant privileges on a role.
 - **id** (String) The ID of this resource.
 - **revoke** (Boolean) Revoke privileges on a database.
+
 

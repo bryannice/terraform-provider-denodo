@@ -90,7 +90,7 @@ func createUser(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 
 	encryptPasswordCommand = fmt.Sprintf(
 		"ENCRYPT_PASSWORD '%s';",
-		&password,
+		password,
 	)
 
 	resultSet, err = client.ResultSet(&encryptPasswordCommand)
@@ -107,7 +107,8 @@ func createUser(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 	}
 
 	sqlStmt += fmt.Sprintf(
-		"%s %s ENCRYPTED TRANSFER\n%s",
+		`%s '%s' ENCRYPTED TRANSFER
+'%s'`,
 		username,
 		encryptPassword,
 		description,

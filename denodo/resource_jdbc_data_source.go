@@ -46,7 +46,7 @@ func resourceJDBCDataSource() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"data_source_description": &schema.Schema{
-				Default:     "",
+				Default:     "Data Source",
 				Description: "The description of the data source.",
 				Optional:    true,
 				Type:        schema.TypeString,
@@ -86,10 +86,10 @@ func resourceJDBCDataSource() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"initial_size": &schema.Schema{
-				Default:     "4",
+				Default:     4,
 				Description: "Number of connections with which the pool is initialized. (default value: 4)",
 				Optional:    true,
-				Type:        schema.TypeString,
+				Type:        schema.TypeInt,
 			},
 			"isolation_level": &schema.Schema{
 				Default:     "TRANSACTION_READ_COMMITTED",
@@ -144,11 +144,13 @@ func resourceJDBCDataSource() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"on_move_read": &schema.Schema{
+				Default:     "false",
 				Description: "if true, when the Execution Engine reads data from the Netezza database to perform a data movement, it will do so using its “External tables” feature. Setting this to true is equivalent to selecting the check box “Use external tables for data movement” of the “Read settings”, on the “Read & Write” tab of the data source",
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"on_move_write": &schema.Schema{
+				Default:     "false",
 				Description: "if true, when the Execution Engine writes data to this database to perform a data movement, it does so using its proprietary API. Setting this to yes is equivalent to selecting the check box “Use Bulk Data Load APIs” of the “Write settings”, on the “Read & Write” tab of the data source.",
 				Optional:    true,
 				Type:        schema.TypeString,
@@ -242,12 +244,14 @@ func createJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	var denodoDatabase string
 	var diags diag.Diagnostics
 	var driverClassName string
+	var encryptPassword string
+	var encryptPasswordCommand string
 	var err error
 	var exhaustedAction string
 	var fetchSize string
 	var folder string
 	var ignoreTrailingSpaces string
-	var initialSize string
+	var initialSize int
 	var isolationLevel string
 	var jdbcDriverProperties string
 	var kerberosProperties string
@@ -261,6 +265,7 @@ func createJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	var onMoveRead string
 	var onMoveWrite string
 	var poolPreparedStatements string
+	var resultSet [][]string
 	var sqlldrExecutableLocation string
 	var sqlStmt string
 	var targetCatalog string
@@ -288,7 +293,7 @@ func createJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	fetchSize = d.Get("fetch_size").(string)
 	folder = d.Get("folder").(string)
 	ignoreTrailingSpaces = d.Get("ignore_trailing_spaces").(string)
-	initialSize = d.Get("initial_size").(string)
+	initialSize = d.Get("initial_size").(int)
 	isolationLevel = d.Get("isolation_level").(string)
 	jdbcDriverProperties = d.Get("jdbc_driver_properties").(string)
 	kerberosProperties = d.Get("kerberos_properties").(string)
@@ -315,6 +320,20 @@ func createJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	validationQuery = d.Get("validation_query").(string)
 	workDir = d.Get("work_dir").(string)
 
+	client = meta.(*Client)
+
+	encryptPasswordCommand = fmt.Sprintf(
+		"ENCRYPT_PASSWORD '%s';",
+		userPassword,
+	)
+
+	resultSet, err = client.ResultSet(&encryptPasswordCommand)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	encryptPassword = resultSet[0][0]
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
@@ -330,8 +349,8 @@ DATABASEVERSION = '%s'
 ISOLATIONLEVEL = %s
 IGNORETRAILINGSPACES = %s
 FETCHSIZE = %s
-VALIDATIONQUERY = %s
-INITIALSIZE = %s
+VALIDATIONQUERY = '%s'
+INITIALSIZE = %d
 MAXIDLE = %s
 MINIDLE = %s
 MAXACTIVE = %s
@@ -350,7 +369,7 @@ MAXOPENPREPAREDSTATEMENTS = %s`,
 		driverClassName,
 		databaseURI,
 		username,
-		userPassword,
+		encryptPassword,
 		classPath,
 		dataSourceDatabaseType,
 		dataSourceDatabaseVersion,
@@ -475,7 +494,6 @@ DATA_LOAD_CONFIGURATION (`
 DESCRIPTION = '%s';`,
 		dataSourceDescription,
 	)
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {

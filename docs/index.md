@@ -17,12 +17,12 @@ Provider to support administrative activities on the Denodo Platform. This provi
 
 ### Required
 
-- **host** (String)
+- **host** (String) Host to the Denodo platform.
 
 ### Optional
 
-- **database** (String)
-- **password** (String, Sensitive)
-- **port** (Number)
-- **ssl_mode** (String)
-- **username** (String, Sensitive)
+- **database** (String) Database initial connection will be made too.
+- **password** (String, Sensitive) Password used to connect to the Denodo platform.
+- **port** (Number) Port to the Denodo platform.
+- **ssl_mode** (String) SSL mode used to connect to the Denodo platform. Acceptable values disable, allow, prefer, require
+- **username** (String, Sensitive) Username used to connect to the Denodo platform.

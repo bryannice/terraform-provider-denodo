@@ -3,7 +3,7 @@
 page_title: "denodo_base_view Resource - terraform-provider-denodo"
 subcategory: "base view"
 description: |-
-Provision and/or configure base view.
+  Provision and/or configure base view.
 ---
 
 # denodo_base_view (Resource)
@@ -29,4 +29,5 @@ Provision and/or configure base view.
 
 - **folder** (String) Folder in which to place the created base view. The result will include the VQL statements to create this folder(s). If null, the VQL will not specify a folder.
 - **id** (String) The ID of this resource.
+
 
