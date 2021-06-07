@@ -206,11 +206,13 @@ func resourceJDBCDataSource() *schema.Resource {
 			"username": &schema.Schema{
 				Description: "Username to connect to the data source.",
 				Required:    true,
+				Sensitive:   true,
 				Type:        schema.TypeString,
 			},
 			"user_password": &schema.Schema{
 				Description: "Password to connect to the data source.",
 				Required:    true,
+				Sensitive:   true,
 				Type:        schema.TypeString,
 			},
 			"validation_query": &schema.Schema{

@@ -38,6 +38,7 @@ func resourceUser() *schema.Resource {
 				Description: "Password associated to the user.",
 				ForceNew:    true,
 				Required:    true,
+				Sensitive:   true,
 				Type:        schema.TypeString,
 			},
 			"roles": &schema.Schema{
@@ -58,6 +59,7 @@ func resourceUser() *schema.Resource {
 				Description: "Username to be created.",
 				ForceNew:    true,
 				Required:    true,
+				Sensitive:   true,
 				Type:        schema.TypeString,
 			},
 		},
