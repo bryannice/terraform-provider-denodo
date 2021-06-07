@@ -3,7 +3,7 @@
 page_title: "denodo_jdbc_data_source Resource - terraform-provider-denodo"
 subcategory: "data source"
 description: |-
-  Provision and configure a database data source.
+  Provision and/or configure jdbc data source
 ---
 
 # denodo_jdbc_data_source (Resource)
@@ -23,8 +23,7 @@ description: |-
 - **denodo_database** (String) Database where the data source will be created.
 - **driver_class_name** (String) The driver class to be used for connection to the data source.
 - **name** (String) Name of the data source to be created.
-- **user_for_query_optimization** (String) Password to connect to the data source.
-- **user_password** (String, Sensitive) Password to connect to the data source.
+- **password** (String, Sensitive) Password to connect to the data source.
 - **username** (String, Sensitive) Username to connect to the data source.
 
 ### Optional
@@ -57,6 +56,7 @@ description: |-
 - **test_on_return** (String) if true and the parameter VALIDATIONQUERY is not empty, the pool will execute the VALIDATIONQUERY on the connections returned to the pool. If the VALIDATIONQUERY fails, the pool will discard the connection. (default value: false)
 - **test_while_idle** (String) If true and the parameter VALIDATIONQUERY is not empty, the connections will be validated by the connection eviction thread. To validate a connection, the thread runs the validation query on the connection. If it fails, the pool drops the connection from the pool. (default value: false)
 - **time_between_eviction** (String) How long in milliseconds the eviction thread should sleep before “runs” of examining idle connections. If negative, the eviction thread is not launched. (default value: -1)
+- **use_for_query_optimization** (String) Data load configuration to optimize for data movement workload.
 - **validation_query** (String) SQL query executed by the connection pool to check if a connection is still valid; also known as “ping query”. It is only used when at least one of TESTONBORROW, TESTONRETURN or TESTWHILEIDLE are true. (default value: depends on the adapter)
 - **work_dir** (String) Work directory used by bulk load configuration. (Oracle only)
 

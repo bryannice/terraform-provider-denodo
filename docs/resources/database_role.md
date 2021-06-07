@@ -3,7 +3,7 @@
 page_title: "denodo_database_role Resource - terraform-provider-denodo"
 subcategory: "database"
 description: |-
-  Provision and configure a database role.
+  Provision and/or configure database role.
 ---
 
 # denodo_database_role (Resource)

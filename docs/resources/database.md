@@ -3,7 +3,7 @@
 page_title: "denodo_database Resource - terraform-provider-denodo"
 subcategory: "database"
 description: |-
-  Provision and configure a database.
+  Provision and/or configure database.
 ---
 
 # denodo_database (Resource)

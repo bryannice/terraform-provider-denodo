@@ -3,7 +3,7 @@
 page_title: "denodo_folder Resource - terraform-provider-denodo"
 subcategory: "database"
 description: |-
-  Provision and configure a database folder.
+  Provision and/or configure a database folder.
 ---
 
 # denodo_folder (Resource)

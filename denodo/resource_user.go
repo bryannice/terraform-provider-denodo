@@ -43,7 +43,7 @@ func resourceUser() *schema.Resource {
 			},
 			"roles": &schema.Schema{
 				Default:     nil,
-				Description: "Password associated to the user.",
+				Description: "Roles associated to the user.",
 				ForceNew:    true,
 				Required:    true,
 				Type:        schema.TypeString,

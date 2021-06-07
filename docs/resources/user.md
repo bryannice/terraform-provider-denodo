@@ -3,7 +3,7 @@
 page_title: "denodo_user Resource - terraform-provider-denodo"
 subcategory: "user"
 description: |-
-  Provision and configure a user.
+  Provision and/or configure user.
 ---
 
 # denodo_user (Resource)
@@ -18,7 +18,7 @@ description: |-
 ### Required
 
 - **password** (String, Sensitive) Password associated to the user.
-- **roles** (String) Password associated to the user.
+- **roles** (String) Roles associated to the user.
 - **username** (String, Sensitive) Username to be created.
 
 ### Optional

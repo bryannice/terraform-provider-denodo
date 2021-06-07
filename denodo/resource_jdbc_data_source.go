@@ -153,6 +153,12 @@ func resourceJDBCDataSource() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
+			"password": &schema.Schema{
+				Description: "Password to connect to the data source.",
+				Required:    true,
+				Sensitive:   true,
+				Type:        schema.TypeString,
+			},
 			"pool_prepared_statements": &schema.Schema{
 				Default:     "false",
 				Description: "if true, the pool of prepared statements is enabled.",
@@ -198,19 +204,13 @@ func resourceJDBCDataSource() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
-			"user_for_query_optimization": &schema.Schema{
-				Description: "Password to connect to the data source.",
-				Required:    true,
+			"use_for_query_optimization": &schema.Schema{
+				Description: "Data load configuration to optimize for data movement workload.",
+				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"username": &schema.Schema{
 				Description: "Username to connect to the data source.",
-				Required:    true,
-				Sensitive:   true,
-				Type:        schema.TypeString,
-			},
-			"user_password": &schema.Schema{
-				Description: "Password to connect to the data source.",
 				Required:    true,
 				Sensitive:   true,
 				Type:        schema.TypeString,
@@ -310,8 +310,8 @@ func createJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	testOnReturn = d.Get("test_on_return").(string)
 	testWhileIdle = d.Get("test_while_idle").(string)
 	username = d.Get("username").(string)
-	userPassword = d.Get("user_password").(string)
-	useForQueryOptimization = d.Get("user_for_query_optimization").(string)
+	userPassword = d.Get("password").(string)
+	useForQueryOptimization = d.Get("use_for_query_optimization").(string)
 	validationQuery = d.Get("validation_query").(string)
 	workDir = d.Get("work_dir").(string)
 
@@ -582,6 +582,7 @@ func updateJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	var numberTestPerEviction string
 	var onMoveRead string
 	var onMoveWrite string
+	var password string
 	var poolPreparedStatements string
 	var sqlldrExecutableLocation string
 	var sqlStmt string
@@ -592,7 +593,6 @@ func updateJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	var testOnReturn string
 	var testWhileIdle string
 	var username string
-	var userPassword string
 	var useForQueryOptimization string
 	var validationQuery string
 	var workDir string
@@ -631,8 +631,8 @@ func updateJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	testOnReturn = d.Get("test_on_return").(string)
 	testWhileIdle = d.Get("test_while_idle").(string)
 	username = d.Get("username").(string)
-	userPassword = d.Get("user_password").(string)
-	useForQueryOptimization = d.Get("user_for_query_optimization").(string)
+	password = d.Get("password").(string)
+	useForQueryOptimization = d.Get("use_for_query_optimization").(string)
 	validationQuery = d.Get("validation_query").(string)
 	workDir = d.Get("work_dir").(string)
 
@@ -669,7 +669,7 @@ MAXOPENPREPAREDSTATEMENTS = %s`,
 		driverClassName,
 		databaseURI,
 		username,
-		userPassword,
+		password,
 		classPath,
 		dataSourceDatabaseType,
 		dataSourceDatabaseVersion,

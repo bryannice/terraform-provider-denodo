@@ -3,7 +3,7 @@
 page_title: "denodo Provider"
 subcategory: ""
 description: |-
-  Provider to manage administrative activities on Denodo Platform.
+  
 ---
 
 # denodo Provider
