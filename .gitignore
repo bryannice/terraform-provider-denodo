@@ -66,3 +66,14 @@ dist/*
 
 # Jupyter lab
 *.ipynb_checkpoints
+
+# Terraform
+
+.terraform
+.terrafrom.d
+backend.tf
+template.beconf.tfvars
+*.tfstate
+*.tfstate.backup
+backend.tf
+.terraform.lock.hcl
