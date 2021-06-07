@@ -51,15 +51,15 @@ func resourceDatabase() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
-			"summary_rewrite": &schema.Schema{
-				Default:     "DEFAULT",
-				Description: "Enables or disables the summary rewrite optimization on the database. Valid values are ON, OFF, or DEFAULT.",
-				Optional:    true,
-				Type:        schema.TypeString,
-			},
 			"query_simplification": &schema.Schema{
 				Default:     "DEFAULT",
 				Description: "Enables or disables automatic simplification of queries on the database. Valid values are ON, OFF, or DEFAULT.",
+				Optional:    true,
+				Type:        schema.TypeString,
+			},
+			"summary_rewrite": &schema.Schema{
+				Default:     "DEFAULT",
+				Description: "Enables or disables the summary rewrite optimization on the database. Valid values are ON, OFF, or DEFAULT.",
 				Optional:    true,
 				Type:        schema.TypeString,
 			},

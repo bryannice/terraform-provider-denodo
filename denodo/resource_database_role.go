@@ -22,7 +22,7 @@ func resourceDatabaseRole() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"allPrivilege": &schema.Schema{
+			"all_privilege": &schema.Schema{
 				Default:     false,
 				Description: "All privileges CONNECT, CREATE, CREATE_DATA_SOURCE, CREATE_VIEW, CREATE_DATA_SERVICE, CREATE_FOLDER, EXECUTE, METADATA, WRITE, and FILE.",
 				Optional:    true,
@@ -40,31 +40,31 @@ func resourceDatabaseRole() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"createDataService": &schema.Schema{
+			"create_data_service": &schema.Schema{
 				Default:     false,
 				Description: "Create data service privilege in a database.",
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"createDataSource": &schema.Schema{
+			"create_data_source": &schema.Schema{
 				Default:     false,
 				Description: "Create data source privilege in a database.",
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"createFolder": &schema.Schema{
+			"create_folder": &schema.Schema{
 				Default:     false,
 				Description: "Create folder privilege in a database.",
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"createView": &schema.Schema{
+			"create_view": &schema.Schema{
 				Default:     false,
 				Description: "Create view privilege in a database.",
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"databaseName": &schema.Schema{
+			"database_name": &schema.Schema{
 				Description: "Name of the database the role belongs too.",
 				ForceNew:    true,
 				Required:    true,
@@ -88,13 +88,13 @@ func resourceDatabaseRole() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"metaData": &schema.Schema{
+			"meta_data": &schema.Schema{
 				Default:     false,
 				Description: "Metadata privilege to get view information in the database.",
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"monitorAdmin": &schema.Schema{
+			"monitor_admin": &schema.Schema{
 				Default:     false,
 				Description: "Monitoring admin role on the database.",
 				Optional:    true,
@@ -112,7 +112,7 @@ func resourceDatabaseRole() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
-			"schedulerAdmin": &schema.Schema{
+			"scheduler_admin": &schema.Schema{
 				Description: "Scheduling admin role on the database.",
 				ForceNew:    true,
 				Required:    true,
