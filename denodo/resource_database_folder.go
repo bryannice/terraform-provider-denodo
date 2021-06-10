@@ -121,7 +121,7 @@ func deleteDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta inte
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
-DROP FOLDER %s CASCADE;`,
+DROP FOLDER '%s' CASCADE;`,
 		database,
 		folderPath,
 	)
@@ -165,8 +165,8 @@ DESC FOLDER '%s';`,
 	}
 
 	d.Set("name", resultSet[0][0])
-	d.Set("description", resultSet[0][1])
-	d.Set("folder_path", resultSet[0][2])
+	d.Set("folder_path", resultSet[0][1])
+	d.Set("description", resultSet[0][2])
 
 	return diags
 }

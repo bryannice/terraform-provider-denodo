@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [markdownlint](https://dlaa.me/markdownlint/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2021-06-09
+
+### Added to 0.4.2
+
+- Fixed some provisioning bugs for setting incorrect values in statefile
+- Fixed destroy bugs for
+    - denodo_jdbc_data_source
+    - denodo_base_view
+    - denodo_database_folder
+    - denodo_database_role
 
 ## [0.4.1] - 2021-06-07
 

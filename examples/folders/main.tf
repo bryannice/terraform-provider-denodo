@@ -25,12 +25,30 @@ provider "denodo" {
 }
 
 # -----------------------------------------------------------------------------
-# Fetch List of Objects in JDBC Data Source
+# Reading from Remote State File from Virtual Database
 # -----------------------------------------------------------------------------
 
-data "denodo_jdbc_data_source_table" "jdst" {
-  catalog_name = var.data_source_catalog_name
-  database     = var.data_source_database
-  name         = var.data_source_name
-  schema_name  = var.data_source_schema_name
+data "terraform_remote_state" "vbd" {
+  backend = "local"
+  config = {
+    path = "../virtual_database/terraform.tfstate"
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Creating Data Source Folder in Database
+# -----------------------------------------------------------------------------
+
+resource "denodo_database_folder" "db_folder_ds" {
+  database    = data.terraform_remote_state.vbd.outputs.id
+  folder_path = "/data_source"
+}
+
+# -----------------------------------------------------------------------------
+# Creating Base View Folder in Database
+# -----------------------------------------------------------------------------
+
+resource "denodo_database_folder" "db_folder_bv" {
+  database    = data.terraform_remote_state.vbd.outputs.id
+  folder_path = "/base_view"
 }

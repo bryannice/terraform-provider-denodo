@@ -180,9 +180,9 @@ func readUser(ctx context.Context, d *schema.ResourceData, meta interface{}) dia
 		return diag.FromErr(err)
 	}
 
-	d.Set("admin", resultSet[0][0])
+	d.Set("username", resultSet[0][0])
 	d.Set("description", resultSet[0][1])
-	d.Set("username", resultSet[0][2])
+	d.Set("admin", resultSet[0][2])
 
 	return diags
 }

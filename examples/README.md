@@ -1,10 +1,10 @@
 # `/examples`
 
-Examples for your applications and/or public libraries.
+These are examples of terraform configurations. When executing the Terraform process with the makefile, it will execute each example in the following order.
 
-Examples:
-
-* https://github.com/nats-io/nats.go/tree/master/examples
-* https://github.com/docker-slim/docker-slim/tree/master/examples
-* https://github.com/gohugoio/hugo/tree/master/examples
-* https://github.com/hashicorp/packer/tree/master/examples
+1. `virtual_database`
+1. `folders`
+1. `jdbc_data_source`
+1. `base_views`
+1. `roles`
+1. `users`

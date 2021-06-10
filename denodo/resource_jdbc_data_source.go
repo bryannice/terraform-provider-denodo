@@ -518,7 +518,9 @@ func deleteJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	denodoDatabase = d.Get("denodo_database").(string)
 	name = d.Id()
 	sqlStmt = fmt.Sprintf(
-		"CONNECT DATABASE %; DROP DATASOURCE JDBC %s;",
+		`
+CONNECT DATABASE %s; 
+DROP DATASOURCE JDBC %s;`,
 		denodoDatabase,
 		name,
 	)
@@ -558,10 +560,10 @@ func readJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	d.Set("name", resultSet[0][0])
-	d.Set("denodo_database", resultSet[0][1])
-	d.Set("database_uri", resultSet[0][2])
-	d.Set("driver_class_name", resultSet[0][3])
-	d.Set("username", resultSet[0][4])
+	d.Set("database_uri", resultSet[0][1])
+	d.Set("driver_class_name", resultSet[0][2])
+	d.Set("username", resultSet[0][3])
+	d.Set("class_path", resultSet[0][4])
 	d.Set("data_source_database_type", resultSet[0][5])
 	d.Set("data_source_database_version", resultSet[0][6])
 	d.Set("validation_query", resultSet[0][7])
