@@ -76,7 +76,7 @@ install: clean-build build
 .PHONY: test-examples
 test-examples: clean-examples
 	@echo "$(BOLD)$(YELLOW)Create Virtual Database.$(RESET)"
-	@cd examples/virtual-database; terraform fmt; terraform init; terraform apply --auto-approve; cd -
+	@cd examples/virtual_database; terraform fmt; terraform init; terraform apply --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Virtual Database Creation.$(RESET)"
 	@echo "$(BOLD)$(YELLOW)Create Folders.$(RESET)"
 	@cd examples/folders; terraform fmt; terraform init; terraform apply --auto-approve; cd -
@@ -112,7 +112,7 @@ destroy-examples:
 	@cd examples/folders; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Folders Destruction.$(RESET)"
 	@echo "$(BOLD)$(YELLOW)Destroy Virtual Database.$(RESET)"
-	@cd examples/virtual-database; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
+	@cd examples/virtual_database; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Virtual Database Destruction.$(RESET)"
 
 .PHONY: test
