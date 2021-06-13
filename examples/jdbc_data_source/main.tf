@@ -44,9 +44,9 @@ resource "denodo_jdbc_data_source" "db_ds" {
   data_source_database_type    = var.data_source_database_type
   data_source_database_version = var.data_source_database_version
   database_uri                 = var.data_source_database_uri
-  denodo_database              = data.terraform_remote_state.folder.outputs.data[0].database
+  denodo_database              = data.terraform_remote_state.folder.outputs.database[1]
   driver_class_name            = var.data_source_driver_class_name
-  folder                       = data.terraform_remote_state.folder.outputs.data[0].folder
+  folder                       = data.terraform_remote_state.folder.outputs.folder[1]
   name                         = var.data_source_name
   password                     = var.data_source_password
   username                     = var.data_source_username
@@ -56,9 +56,9 @@ resource "denodo_jdbc_data_source" "db_ds" {
 # Fetch List of Objects in JDBC Data Source
 # -----------------------------------------------------------------------------
 
-data "denodo_jdbc_data_source_table" "jdst" {
+data "denodo_jdbc_data_source_object" "jdst" {
   catalog_name = var.data_source_catalog_name
-  database     = data.terraform_remote_state.folder.outputs.data[0].database
+  database     = data.terraform_remote_state.folder.outputs.database[1]
   name         = denodo_jdbc_data_source.db_ds.id
   schema_name  = var.data_source_schema_name
 }

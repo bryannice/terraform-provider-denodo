@@ -121,7 +121,7 @@ func deleteDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta inte
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
-DROP FOLDER '%s' CASCADE;`,
+DROP FOLDER IF EXISTS '%s' CASCADE;`,
 		database,
 		folderPath,
 	)

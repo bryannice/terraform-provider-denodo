@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceJDBCDataSourceTable() *schema.Resource {
+func dataSourceJDBCDataSourceObject() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: readJDBCDataSourceTable,
+		ReadContext: readJDBCDataSourceObject,
 		Schema: map[string]*schema.Schema{
 			"catalog_name": &schema.Schema{
 				Description: "Name of the catalog for which you want to get the list of tables. If the data source does not support catalogs, set to null. If null and the data source does support catalogs, the procedure will return all the matching tables across all catalogs.",
@@ -32,7 +32,7 @@ func dataSourceJDBCDataSourceTable() *schema.Resource {
 				Required:    true,
 				Type:        schema.TypeString,
 			},
-			"tables": &schema.Schema{
+			"objects": &schema.Schema{
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -64,19 +64,24 @@ func dataSourceJDBCDataSourceTable() *schema.Resource {
 	}
 }
 
-func readJDBCDataSourceTable(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func readJDBCDataSourceObject(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var catalogName string
 	var client *Client
+	var database string
 	var diags diag.Diagnostics
 	var resultSet [][]string
 	var err error
+	var name string
 	var records []interface{}
+	var schemaName string
+	var sqlStmt string
 
-	catalogName := d.Get("catalog_name").(string)
-	database := d.Get("database").(string)
-	name := d.Get("name").(string)
-	schemaName := d.Get("schema_name").(string)
+	catalogName = d.Get("catalog_name").(string)
+	database = d.Get("database").(string)
+	name = d.Get("name").(string)
+	schemaName = d.Get("schema_name").(string)
 
-	sqlStmt := fmt.Sprintf(
+	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
 CALL GET_JDBC_DATASOURCE_TABLES(
@@ -110,7 +115,7 @@ CALL GET_JDBC_DATASOURCE_TABLES(
 		)
 	}
 
-	if err = d.Set("tables", records); err != nil {
+	if err = d.Set("objects", records); err != nil {
 		return diag.FromErr(err)
 	}
 

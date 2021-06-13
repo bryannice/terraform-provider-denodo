@@ -520,7 +520,7 @@ func deleteJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s; 
-DROP DATASOURCE JDBC %s;`,
+DROP DATASOURCE JDBC IF EXISTS %s CASCADE;`,
 		denodoDatabase,
 		name,
 	)

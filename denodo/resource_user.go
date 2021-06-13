@@ -144,7 +144,7 @@ func deleteUser(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 
 	username = d.Get("username").(string)
 	sqlStmt = fmt.Sprintf(
-		"DROP USER %s;",
+		"DROP USER IF EXISTS %s;",
 		username,
 	)
 	client = meta.(*Client)

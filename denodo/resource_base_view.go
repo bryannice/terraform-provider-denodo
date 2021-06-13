@@ -148,7 +148,7 @@ func deleteBaseView(ctx context.Context, d *schema.ResourceData, meta interface{
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
-DROP VIEW %s;`,
+DROP VIEW IF EXISTS %s CASCADE;`,
 		dataSourceDatabase,
 		name,
 	)
@@ -202,5 +202,6 @@ DESC VIEW %s;`,
 
 func updateBaseView(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
+	// ToDo: Add logic for Alter table to modify Base View
 	return diags
 }

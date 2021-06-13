@@ -26,6 +26,14 @@ GIT_VERSION := $(shell git describe --always --tags --long --dirty | sed -e 's/\
 GIT_VERSION_LONG := $(shell git describe --always --tags --long --dirty)
 
 # -----------------------------------------------------------------------------
+# Docker Variables
+# -----------------------------------------------------------------------------
+
+STEP_1_IMAGE ?= alpine:3.13
+DOCKER_IMAGE_TAG ?= $(GIT_VERSION)
+DOCKER_IMAGE_NAME := $(GIT_REPOSITORY_NAME)
+
+# -----------------------------------------------------------------------------
 # Terraform Provider Denodo Variables
 # -----------------------------------------------------------------------------
 
@@ -34,7 +42,28 @@ HOSTNAME=custom.com
 NAME=denodo
 NAMESPACE=$(GIT_ACCOUNT_NAME)
 VERSION=0.1
-OS_ARCH := $(shell go env GOHOSTOS)_$(shell go env GOHOSTARCH)
+OS_ARCH := linux_amd64
+
+# -----------------------------------------------------------------------------
+# Docker Targets
+# -----------------------------------------------------------------------------
+
+.PHONY: docker-image
+docker-image: docker-rmi-for-image
+	@echo "$(BOLD)$(YELLOW)Building docker image.$(RESET)"
+	@docker build \
+		--build-arg STEP_1_IMAGE=$(STEP_1_IMAGE) \
+		--tag $(DOCKER_IMAGE_NAME):latest \
+		--tag $(DOCKER_IMAGE_NAME):$(GIT_VERSION) \
+		--file build/package/Dockerfile \
+		.
+	@echo "$(BOLD)$(GREEN)Completed building docker image.$(RESET)"
+
+.PHONY: docker-rmi-for-image
+docker-rmi-for-image:
+	-docker rmi --force \
+		$(DOCKER_IMAGE_NAME):$(GIT_VERSION) \
+		$(DOCKER_IMAGE_NAME):latest
 
 # -----------------------------------------------------------------------------
 # Terraform Provider Denodo Targets
@@ -87,6 +116,9 @@ test-examples: clean-examples
 	@echo "$(BOLD)$(YELLOW)Create Base Views.$(RESET)"
 	@cd examples/base_views; terraform fmt; terraform init; terraform apply --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Base Views Creation.$(RESET)"
+	@echo "$(BOLD)$(YELLOW)Create Dervived Views.$(RESET)"
+	@cd examples/dervived_views; terraform fmt; terraform init; terraform apply --auto-approve; cd -
+	@echo "$(BOLD)$(YELLOW)Completed Dervived Views Creation.$(RESET)"
 	@echo "$(BOLD)$(YELLOW)Create Roles.$(RESET)"
 	@cd examples/roles; terraform fmt; terraform init; terraform apply --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Roles Creation.$(RESET)"
@@ -105,6 +137,9 @@ destroy-examples:
 	@echo "$(BOLD)$(YELLOW)Destroy Base Views.$(RESET)"
 	@cd examples/base_views; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Base Views Destruction.$(RESET)"
+	@echo "$(BOLD)$(YELLOW)Destroy Dervived Views.$(RESET)"
+	@cd examples/dervived_views; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
+	@echo "$(BOLD)$(YELLOW)Completed Dervived Views Destruction.$(RESET)"
 	@echo "$(BOLD)$(YELLOW)Destroy JDBC Data Source.$(RESET)"
 	@cd examples/jdbc_data_source; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed JDBC Data Source Destruction.$(RESET)"

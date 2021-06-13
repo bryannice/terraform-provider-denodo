@@ -57,4 +57,3 @@ resource "denodo_database_role" "db_role_read" {
 - **revoke** (Boolean) Revoke privileges on a database.
 - **scheduler_admin** (Boolean) Scheduling admin role on the database.
 - **write** (Boolean) Write privileges on elements in a database.
-

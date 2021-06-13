@@ -11,10 +11,12 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		ConfigureContextFunc: providerConfigure,
 		DataSourcesMap: map[string]*schema.Resource{
-			"denodo_jdbc_data_source_table": dataSourceJDBCDataSourceTable(),
+			"denodo_jdbc_data_source_object": dataSourceJDBCDataSourceObject(),
+			"denodo_object":                  dataSourceObject(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"denodo_base_view":        resourceBaseView(),
+			"denodo_dervived_view":    resourceDerivedView(),
 			"denodo_database":         resourceDatabase(),
 			"denodo_database_folder":  resourceDatabaseFolder(),
 			"denodo_database_role":    resourceDatabaseRole(),

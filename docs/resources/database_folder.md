@@ -36,4 +36,3 @@ resource "denodo_database_folder" "db_folder_ds" {
 - **id** (String) The ID of this resource.
 - **move** (Boolean) Indicator to move an element to the folder.
 - **rename_path** (String) When the data source has to insert several rows into the database of this data source, it can insert them in batches. This number sets the number of queries per batch.
-

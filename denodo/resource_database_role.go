@@ -129,16 +129,45 @@ func resourceDatabaseRole() *schema.Resource {
 }
 
 func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var admin bool
+	var allPrivileges bool
 	var client *Client
+	var connect bool
+	var create bool
+	var createDataService bool
+	var createDataSource bool
+	var createFolder bool
+	var createView bool
 	var databaseName string
 	var diags diag.Diagnostics
 	var err error
+	var execute bool
+	var file bool
 	var grantClause []string
 	var name string
+	var metaData bool
+	var monitorAdmin bool
+	var roles []string
+	var schedulerAdmin bool
 	var sqlStmt string
+	var write bool
 
+	admin = d.Get("admin").(bool)
+	allPrivileges = d.Get("all_privileges").(bool)
+	connect = d.Get("connect").(bool)
+	create = d.Get("create").(bool)
+	createDataService = d.Get("create_data_service").(bool)
+	createDataSource = d.Get("create_data_source").(bool)
+	createFolder = d.Get("create_folder").(bool)
+	createView = d.Get("create_view").(bool)
 	databaseName = d.Get("database_name").(string)
+	execute = d.Get("execute").(bool)
+	file = d.Get("file").(bool)
+	metaData = d.Get("meta_data").(bool)
+	monitorAdmin = d.Get("monitor_admin").(bool)
 	name = d.Get("name").(string)
+	schedulerAdmin = d.Get("scheduler_admin").(bool)
+	write = d.Get("write").(bool)
 
 	sqlStmt = fmt.Sprintf(
 		`
@@ -147,40 +176,40 @@ GRANT `,
 		name,
 	)
 
-	if d.Get("admin").(bool) {
+	if admin {
 		grantClause = append(grantClause, "ADMIN")
 	}
-	if d.Get("all_privileges").(bool) {
+	if allPrivileges {
 		grantClause = append(grantClause, "ALL PRIVILEGES")
 	}
-	if d.Get("connect").(bool) {
+	if connect {
 		grantClause = append(grantClause, "CONNECT")
 	}
-	if d.Get("create").(bool) {
+	if create {
 		grantClause = append(grantClause, "CREATE")
 	}
-	if d.Get("create_data_service").(bool) {
+	if createDataService {
 		grantClause = append(grantClause, "CREATE_DATA_SERVICE")
 	}
-	if d.Get("create_data_source").(bool) {
+	if createDataSource {
 		grantClause = append(grantClause, "CREATE_DATA_SOURCE")
 	}
-	if d.Get("create_folder").(bool) {
+	if createFolder {
 		grantClause = append(grantClause, "CREATE_FOLDER")
 	}
-	if d.Get("create_view").(bool) {
+	if createView {
 		grantClause = append(grantClause, "CREATE_VIEW")
 	}
-	if d.Get("execute").(bool) {
+	if execute {
 		grantClause = append(grantClause, "EXECUTE")
 	}
-	if d.Get("file").(bool) {
+	if file {
 		grantClause = append(grantClause, "FILE")
 	}
-	if d.Get("meta_data").(bool) {
+	if metaData {
 		grantClause = append(grantClause, "METADATA")
 	}
-	if d.Get("write").(bool) {
+	if write {
 		grantClause = append(grantClause, "WRITE")
 	}
 
@@ -189,6 +218,25 @@ GRANT `,
 		strings.Join(grantClause, ", "),
 		databaseName,
 	)
+
+	if monitorAdmin || schedulerAdmin {
+		sqlStmt += fmt.Sprintf(
+			`
+			ALTER ROLE %s`,
+			name,
+		)
+		if monitorAdmin {
+			roles = append(roles, "monitor_admin")
+		}
+		if schedulerAdmin {
+			roles = append(roles, "scheduler_admin")
+		}
+		sqlStmt += fmt.Sprintf(
+			`
+			GRANT ROLE %s;`,
+			strings.Join(roles, ", "),
+		)
+	}
 
 	client = meta.(*Client)
 
@@ -213,7 +261,7 @@ func deleteDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 
 	name = d.Id()
 	sqlStmt = fmt.Sprintf(
-		"DROP ROLE %s;",
+		"DROP ROLE IF EXISTS %s;",
 		name,
 	)
 	client = meta.(*Client)
@@ -263,63 +311,96 @@ DESC ROLE %s;`,
 }
 
 func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var admin bool
+	var allPrivileges bool
 	var client *Client
+	var connect bool
+	var create bool
+	var createDataService bool
+	var createDataSource bool
+	var createFolder bool
+	var createView bool
 	var databaseName string
 	var diags diag.Diagnostics
 	var err error
+	var execute bool
+	var file bool
+	var grant bool
 	var grantClause []string
 	var name string
+	var metaData bool
+	var monitorAdmin bool
+	var revoke bool
+	var schedulerAdmin bool
 	var sqlStmt string
+	var write bool
 
+	admin = d.Get("admin").(bool)
+	allPrivileges = d.Get("all_privileges").(bool)
+	connect = d.Get("connect").(bool)
+	create = d.Get("create").(bool)
+	createDataService = d.Get("create_data_service").(bool)
+	createDataSource = d.Get("create_data_source").(bool)
+	createFolder = d.Get("create_folder").(bool)
+	createView = d.Get("create_view").(bool)
 	databaseName = d.Get("database_name").(string)
+	execute = d.Get("execute").(bool)
+	file = d.Get("file").(bool)
+	grant = d.Get("grant").(bool)
+	metaData = d.Get("meta_data").(bool)
+	monitorAdmin = d.Get("monitor_admin").(bool)
 	name = d.Get("name").(string)
+	revoke = d.Get("revoke").(bool)
+	schedulerAdmin = d.Get("scheduler_admin").(bool)
+	write = d.Get("write").(bool)
+
 	sqlStmt = fmt.Sprintf(
 		"ALTER ROLE %s\n",
 		name,
 	)
 
-	if d.Get("grant").(bool) {
+	if grant {
 		sqlStmt += "GRANT "
 	}
-	if d.Get("revoke").(bool) {
+	if revoke {
 		sqlStmt += "REVOKE "
 	}
 
-	if !d.Get("monitor_admin").(bool) && !d.Get("scheduler_admin").(bool) {
-		if d.Get("admin").(bool) {
+	if !monitorAdmin && !schedulerAdmin {
+		if admin {
 			grantClause = append(grantClause, "ADMIN")
 		}
-		if d.Get("all_privileges").(bool) {
+		if allPrivileges {
 			grantClause = append(grantClause, "ALL PRIVILEGES")
 		}
-		if d.Get("connect").(bool) {
+		if connect {
 			grantClause = append(grantClause, "CONNECT")
 		}
-		if d.Get("create").(bool) {
+		if create {
 			grantClause = append(grantClause, "CREATE")
 		}
-		if d.Get("create_data_service").(bool) {
+		if createDataService {
 			grantClause = append(grantClause, "CREATE_DATA_SERVICE")
 		}
-		if d.Get("create_data_source").(bool) {
+		if createDataSource {
 			grantClause = append(grantClause, "CREATE_DATA_SOURCE")
 		}
-		if d.Get("create_folder").(bool) {
+		if createFolder {
 			grantClause = append(grantClause, "CREATE_FOLDER")
 		}
-		if d.Get("create_view").(bool) {
+		if createView {
 			grantClause = append(grantClause, "CREATE_VIEW")
 		}
-		if d.Get("execute").(bool) {
+		if execute {
 			grantClause = append(grantClause, "EXECUTE")
 		}
-		if d.Get("file").(bool) {
+		if file {
 			grantClause = append(grantClause, "FILE")
 		}
-		if d.Get("meta_data").(bool) {
+		if metaData {
 			grantClause = append(grantClause, "METADATA")
 		}
-		if d.Get("write").(bool) {
+		if write {
 			grantClause = append(grantClause, "WRITE")
 		}
 		sqlStmt += fmt.Sprintf(
@@ -328,10 +409,10 @@ func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 			databaseName,
 		)
 	} else {
-		if d.Get("monitor_admin").(bool) {
+		if monitorAdmin {
 			grantClause = append(grantClause, "monitor_admin")
 		}
-		if d.Get("scheduler_admin").(bool) {
+		if schedulerAdmin {
 			grantClause = append(grantClause, "scheduler_admin")
 		}
 		sqlStmt += fmt.Sprintf(

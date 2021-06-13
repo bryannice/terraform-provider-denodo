@@ -17,11 +17,3 @@ variable "denodo_port" {
 variable "denodo_username" {
   type = string
 }
-
-variable "data_source_catalog_name" {
-  type = string
-}
-
-variable "data_source_schema_name" {
-  type = string
-}

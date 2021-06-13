@@ -25,30 +25,21 @@ provider "denodo" {
 }
 
 # -----------------------------------------------------------------------------
-# Reading from Remote State File from Virtual Database
+# Reading from Remote State File from Folder
 # -----------------------------------------------------------------------------
 
-data "terraform_remote_state" "vbd" {
+data "terraform_remote_state" "folder" {
   backend = "local"
   config = {
-    path = "../virtual_database/terraform.tfstate"
+    path = "../folders/terraform.tfstate"
   }
 }
 
 # -----------------------------------------------------------------------------
-# Create folder list
+# Create Dervived View
 # -----------------------------------------------------------------------------
 
-locals {
-  folder_list = ["/base_view", "/data_source", "/dervived_view"]
-}
-
-# -----------------------------------------------------------------------------
-# Creating Folders in Database
-# -----------------------------------------------------------------------------
-
-resource "denodo_database_folder" "db_folder" {
-  count       = length(local.folder_list.*)
-  database    = data.terraform_remote_state.vbd.outputs.id
-  folder_path = local.folder_list[count.index]
+resource "denodo_dervived_view" "dv" {
+  database  = data.terraform_remote_state.folder.outputs.database[2]
+  directory = "test_files"
 }

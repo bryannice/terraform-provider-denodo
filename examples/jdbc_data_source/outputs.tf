@@ -7,5 +7,5 @@ output "data_source_name" {
 }
 
 output "object_list" {
-  value = data.denodo_jdbc_data_source_table.jdst.tables.*
+  value = data.denodo_jdbc_data_source_object.jdst.objects.*
 }

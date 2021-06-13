@@ -145,7 +145,7 @@ func deleteDatabase(ctx context.Context, d *schema.ResourceData, meta interface{
 	name = d.Id()
 
 	sqlStmt = fmt.Sprintf(
-		"DROP DATABASE %s;",
+		"DROP DATABASE IF EXISTS %s CASCADE;",
 		name,
 	)
 
