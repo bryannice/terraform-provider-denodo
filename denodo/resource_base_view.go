@@ -26,6 +26,7 @@ func resourceBaseView() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"data_source_catalog_name": &schema.Schema{
+				Default:     "NULL",
 				Description: "Name of the catalog in the source database that contains the table from which to create the base view. Pass null if the database does not support catalogs.",
 				Required:    true,
 				Type:        schema.TypeString,
@@ -36,6 +37,7 @@ func resourceBaseView() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"data_source_schema_name": &schema.Schema{
+				Default:     "NULL",
 				Description: "Name of the schema in the source database that contains the table from which to create the base view. Pass null if the database does not support schemas.",
 				Required:    true,
 				Type:        schema.TypeString,
@@ -89,8 +91,8 @@ func createBaseView(ctx context.Context, d *schema.ResourceData, meta interface{
 CONNECT DATABASE %s;
 CALL GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW(
 	'%s',
-	'%s',
-	'%s',
+	%s,
+	%s,
 	'%s',
 	'%s',
 	%s,
@@ -99,8 +101,8 @@ CALL GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW(
 `,
 		dataSourceDatabase,
 		dataSourceName,
-		dataSourceCatalogName,
-		dataSourceSchemaName,
+		TenaryString(dataSourceCatalogName == "NULL", dataSourceCatalogName, fmt.Sprintf("'%s'", dataSourceCatalogName)),
+		TenaryString(dataSourceSchemaName == "NULL", dataSourceSchemaName, fmt.Sprintf("'%s'", dataSourceSchemaName)),
 		dataSourceTableName,
 		name,
 		TenaryString(folder == "NULL", folder, fmt.Sprintf("'%s'", folder)),
