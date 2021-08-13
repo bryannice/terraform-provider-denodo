@@ -28,7 +28,7 @@ func resourceBaseView() *schema.Resource {
 			"data_source_catalog_name": &schema.Schema{
 				Default:     "NULL",
 				Description: "Name of the catalog in the source database that contains the table from which to create the base view. Pass null if the database does not support catalogs.",
-				Required:    true,
+				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"data_source_database": &schema.Schema{
@@ -39,7 +39,7 @@ func resourceBaseView() *schema.Resource {
 			"data_source_schema_name": &schema.Schema{
 				Default:     "NULL",
 				Description: "Name of the schema in the source database that contains the table from which to create the base view. Pass null if the database does not support schemas.",
-				Required:    true,
+				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"data_source_table_name": &schema.Schema{
