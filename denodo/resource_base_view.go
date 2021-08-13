@@ -97,16 +97,17 @@ CALL GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW(
 	'%s',
 	%s,
 	NULL,
-	NULL
+	'%s'
 );
 `,
-		dataSourceDatabase,
+		database,
 		dataSourceName,
 		TenaryString(dataSourceCatalogName == "NULL", dataSourceCatalogName, fmt.Sprintf("'%s'", dataSourceCatalogName)),
 		TenaryString(dataSourceSchemaName == "NULL", dataSourceSchemaName, fmt.Sprintf("'%s'", dataSourceSchemaName)),
 		dataSourceTableName,
 		name,
 		TenaryString(folder == "NULL", folder, fmt.Sprintf("'%s'", folder)),
+		dataSourceDatabase,
 	)
 
 	client = meta.(*Client)
@@ -139,20 +140,20 @@ CONNECT DATABASE %s;
 
 func deleteBaseView(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
-	var dataSourceDatabase string
+	var database string
 	var diags diag.Diagnostics
 	var err error
 	var name string
 	var sqlStmt string
 
-	dataSourceDatabase = d.Get("data_source_database").(string)
+	database = d.Get("database").(string)
 	name = d.Id()
 
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
 DROP VIEW IF EXISTS %s CASCADE;`,
-		dataSourceDatabase,
+		database,
 		name,
 	)
 
@@ -170,21 +171,21 @@ DROP VIEW IF EXISTS %s CASCADE;`,
 
 func readBaseView(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
-	var dataSourceDatabase string
+	var database string
 	var diags diag.Diagnostics
 	var err error
 	var name string
 	var resultSet [][]string
 	var sqlStmt string
 
-	dataSourceDatabase = d.Get("data_source_database").(string)
+	database = d.Get("database").(string)
 	name = d.Id()
 
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
 DESC VIEW %s;`,
-		dataSourceDatabase,
+		database,
 		name,
 	)
 
@@ -197,7 +198,7 @@ DESC VIEW %s;`,
 
 	if len(resultSet) != 0 {
 		d.Set("name", name)
-		d.Set("database", dataSourceDatabase)
+		d.Set("database", database)
 	}
 
 	return diags

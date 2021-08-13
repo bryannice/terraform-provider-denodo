@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added to 0.5.8
 
+- Reverting to previous create pattern in 0.5.7.
+- Correcting metadata fetching when object is created.
+
+# [0.5.8] - 2021-08-14
+
+### Added to 0.5.8
+
 - Reverting to previous create pattern.
 
 # [0.5.7] - 2021-08-14
