@@ -97,17 +97,16 @@ CALL GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW(
 	'%s',
 	%s,
 	NULL,
-	'%s'
+	NULL
 );
 `,
-		database,
+		dataSourceDatabase,
 		dataSourceName,
 		TenaryString(dataSourceCatalogName == "NULL", dataSourceCatalogName, fmt.Sprintf("'%s'", dataSourceCatalogName)),
 		TenaryString(dataSourceSchemaName == "NULL", dataSourceSchemaName, fmt.Sprintf("'%s'", dataSourceSchemaName)),
 		dataSourceTableName,
 		name,
 		TenaryString(folder == "NULL", folder, fmt.Sprintf("'%s'", folder)),
-		dataSourceDatabase,
 	)
 
 	client = meta.(*Client)
