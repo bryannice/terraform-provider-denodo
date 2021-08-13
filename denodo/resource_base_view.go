@@ -97,7 +97,6 @@ CALL GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW(
 	'%s',
 	%s,
 	NULL,
-	NULL,
 	'%s'
 );
 `,

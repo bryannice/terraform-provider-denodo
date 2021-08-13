@@ -16,7 +16,7 @@ Provider to support administrative activities on the Denodo Platform. This provi
 terraform {
   required_providers {
     denodo = {
-      version = "=0.5.6"
+      version = "=0.5.7"
     }
   }
 }
