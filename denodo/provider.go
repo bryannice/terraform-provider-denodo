@@ -50,7 +50,7 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeInt,
 			},
 			"ssl_mode": &schema.Schema{
-				DefaultFunc: schema.EnvDefaultFunc("DENODO_SSL_MODE", "require"),
+				DefaultFunc: schema.EnvDefaultFunc("DENODO_SSL_MODE", "disable"),
 				Description: "SSL mode used to connect to the Denodo platform. Acceptable values disable, allow, prefer, require",
 				Optional:    true,
 				Type:        schema.TypeString,

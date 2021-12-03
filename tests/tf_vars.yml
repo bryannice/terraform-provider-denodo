@@ -1,0 +1,26 @@
+---
+host: virtual_data_port
+password: admin
+port: 9996
+username: admin
+database:
+  authentication: LOCAL
+  char_set: DEFAULT
+  cost_optimization: DEFAULT
+  description: testing database northwind
+  name: northwind
+  summary_rewrite: DEFAULT
+  query_simplification: DEFAULT
+folders:
+  - /data_source
+  - /base_view
+data_source:
+  class_path: postgresql-10
+  data_source_database_type: postgresql
+  data_source_database_version: 10
+  database_uri: jdbc:postgresql://postgres:5432/northwind
+  driver_class_name: org.postgresql.Driver
+  folder: data_source
+  name: ds_northwind
+  password: postgres
+  username: postgres

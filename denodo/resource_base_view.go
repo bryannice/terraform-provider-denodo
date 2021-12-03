@@ -47,14 +47,39 @@ func resourceBaseView() *schema.Resource {
 				Required:    true,
 				Type:        schema.TypeString,
 			},
+			"description": &schema.Schema{
+				Computed:    true,
+				Description: "Description of the element.",
+				Type:        schema.TypeString,
+			},
 			"folder": &schema.Schema{
 				Default:     "NULL",
 				Description: "Folder in which to place the created base view. The result will include the VQL statements to create this folder(s). If null, the VQL will not specify a folder.",
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
+			"last_modification_date": &schema.Schema{
+				Computed:    true,
+				Description: "Date when the element was modified for the last time. If the element was never modified, the value is the same as create_date",
+				Type:        schema.TypeString,
+			},
+			"last_user_modifier": &schema.Schema{
+				Computed:    true,
+				Description: "User that modified the element for the last time. If the element was never modified, the value is the same as user_creator.",
+				Type:        schema.TypeString,
+			},
 			"name": &schema.Schema{
 				Description: "Name of the base view to be created. If null, the name will be auto-generated.",
+				Required:    true,
+				Type:        schema.TypeString,
+			},
+			"user_creator": &schema.Schema{
+				Computed:    true,
+				Description: "Owner of the element.",
+				Type:        schema.TypeString,
+			},
+			"vql": &schema.Schema{
+				Description: "VQL selection statement used to create or replace a dervived view.",
 				Required:    true,
 				Type:        schema.TypeString,
 			},
@@ -76,6 +101,7 @@ func createBaseView(ctx context.Context, d *schema.ResourceData, meta interface{
 	var name string
 	var resultSet [][]string
 	var sqlStmt string
+	var vql string
 
 	database = d.Get("database").(string)
 	dataSourceName = d.Get("data_source_name").(string)
@@ -85,11 +111,17 @@ func createBaseView(ctx context.Context, d *schema.ResourceData, meta interface{
 	dataSourceTableName = d.Get("data_source_table_name").(string)
 	folder = d.Get("folder").(string)
 	name = d.Get("name").(string)
+	vql = d.Get("vql").(string)
 
 	sqlStmt = fmt.Sprintf(
-		`
-CONNECT DATABASE %s;
-CALL GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW(
+		`CONNECT DATABASE %s;
+`,
+		database,
+	)
+
+	if vql == "" {
+		sqlStmt += fmt.Sprintf(
+			`CALL GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW(
 	'%s',
 	%s,
 	%s,
@@ -98,40 +130,42 @@ CALL GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW(
 	%s,
 	NULL,
 	'%s'
-);
-`,
-		database,
-		dataSourceName,
-		TenaryString(dataSourceCatalogName == "NULL", dataSourceCatalogName, fmt.Sprintf("'%s'", dataSourceCatalogName)),
-		TenaryString(dataSourceSchemaName == "NULL", dataSourceSchemaName, fmt.Sprintf("'%s'", dataSourceSchemaName)),
-		dataSourceTableName,
-		name,
-		TenaryString(folder == "NULL", folder, fmt.Sprintf("'%s'", folder)),
-		dataSourceDatabase,
-	)
-
-	client = meta.(*Client)
-
-	resultSet, err = client.ResultSet(&sqlStmt)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	for _, generatedVql := range resultSet {
-		createStmt := fmt.Sprintf(
-			`
-CONNECT DATABASE %s;
-%s`,
-			database,
-			generatedVql[0],
+);`,
+			dataSourceName,
+			TenaryString(dataSourceCatalogName == "NULL", dataSourceCatalogName, fmt.Sprintf("'%s'", dataSourceCatalogName)),
+			TenaryString(dataSourceSchemaName == "NULL", dataSourceSchemaName, fmt.Sprintf("'%s'", dataSourceSchemaName)),
+			dataSourceTableName,
+			name,
+			TenaryString(folder == "NULL", folder, fmt.Sprintf("'%s'", folder)),
+			dataSourceDatabase,
 		)
-		err = client.ExecuteSQL(&createStmt)
+
+		client = meta.(*Client)
+
+		resultSet, err = client.ResultSet(&sqlStmt)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		for _, generatedVql := range resultSet {
+			createStmt := fmt.Sprintf(
+				`CONNECT DATABASE %s;
+%s`,
+				database,
+				generatedVql[0],
+			)
+			err = client.ExecuteSQL(&createStmt)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	} else {
+		sqlStmt += vql
+		err = client.ExecuteSQL(&sqlStmt)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
-
-	d.SetId(d.Get("name").(string))
 
 	diags = readBaseView(ctx, d, meta)
 
@@ -179,14 +213,28 @@ func readBaseView(ctx context.Context, d *schema.ResourceData, meta interface{})
 	var sqlStmt string
 
 	database = d.Get("database").(string)
-	name = d.Id()
+	name = d.Get("name").(string)
 
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
-DESC VIEW %s;`,
-		database,
+SELECT
+  internal_id,
+  database_name,
+  name,
+  user_creator,
+  last_user_modifier,
+  create_date,
+  last_modification_date,
+  description,
+  folder
+FROM GET_ELEMENTS()
+WHERE name = '%s'
+  AND database_name = '%s'
+  AND type = 'view'
+  AND subtype = 'base';`,
 		name,
+		database,
 	)
 
 	client = meta.(*Client)
@@ -196,9 +244,32 @@ DESC VIEW %s;`,
 		return diag.FromErr(err)
 	}
 
-	if len(resultSet) != 0 {
-		d.Set("name", name)
-		d.Set("database", database)
+	if err = d.Set("id", resultSet[0][0]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("database", resultSet[0][1]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("name", resultSet[0][2]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("user_creator", resultSet[0][3]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("last_user_modifier", resultSet[0][4]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("create_date", resultSet[0][5]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("last_modification_date", resultSet[0][6]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("description", resultSet[0][7]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("folder", resultSet[0][8]); err != nil {
+		diags = diag.FromErr(err)
 	}
 
 	return diags

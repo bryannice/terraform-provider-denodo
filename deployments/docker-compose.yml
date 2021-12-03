@@ -1,0 +1,57 @@
+---
+version: "3.9"
+services:
+  terraform:
+    container_name: terraform_provider_denodo
+    depends_on:
+      - data_source
+      - virtual_data_port
+    image: terraform-provider-denodo
+    networks:
+      - denodo
+    ports:
+      - 8888:8888
+    volumes:
+      - ../:/root/terraform-provider-denodo
+
+  virtual_data_port:
+    container_name: virtual_data_port
+    depends_on:
+      - data_source
+    image: virtual_data_port
+    networks:
+      - denodo
+    ports:
+      - 9999:9999
+      - 9996:9996
+
+  design_studio:
+    container_name: design_studio
+    depends_on:
+      - virtual_data_port
+    image: design_studio
+    networks:
+      - denodo
+    ports:
+      - 9090:9090
+
+  data_source:
+    container_name: postgres
+    environment:
+      POSTGRES_DB: northwind
+      POSTGRES_HOST_AUTH_METHOD: password
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    image: postgres:14.1
+    networks:
+      - denodo
+    ports:
+      - 5432:5432
+    volumes:
+      - ../deployments/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ../deployments/northwind.sql:/docker-entrypoint-initdb.d/northwind.sql
+
+networks:
+  denodo:
+    driver: bridge
+    name: denodo

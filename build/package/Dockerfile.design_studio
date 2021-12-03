@@ -1,0 +1,16 @@
+ARG BASE_IMAGE=denodo_installer
+ARG TARGET_IMAGE=debian:10.9
+
+FROM $BASE_IMAGE AS STEP_1
+
+COPY design_studio.xml /denodo-express-install-8_0-linux64/design_studio.xml
+
+RUN cd /denodo-express-install-8_0-linux64 \
+ && ./installer_cli.sh install --autoinstaller design_studio.xml
+
+FROM $TARGET_IMAGE AS STEP_2
+
+COPY --from=STEP_1 /opt/denodo /opt/denodo
+RUN chmod 0755 /opt/denodo/bin/designstudio_startup.sh
+
+CMD ["bash", "-c", "/opt/denodo/bin/designstudio_startup.sh; tail -f /dev/null"]

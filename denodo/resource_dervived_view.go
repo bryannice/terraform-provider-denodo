@@ -3,11 +3,6 @@ package denodo
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,79 +15,50 @@ func resourceDerivedView() *schema.Resource {
 		ReadContext:   readDerivedView,
 		UpdateContext: updateDerivedView,
 		Schema: map[string]*schema.Schema{
+			"create_date": &schema.Schema{
+				Computed:    true,
+				Description: "Date when the element was created.",
+				Type:        schema.TypeString,
+			},
 			"database": &schema.Schema{
 				Description: "Database where the base view will reside.",
 				Required:    true,
 				Type:        schema.TypeString,
 			},
-			"directory": &schema.Schema{
-				Description: "Directory (or directories) with the sql files containing VQL to create or replace dervived views.",
-				Optional:    true,
+			"description": &schema.Schema{
+				Computed:    true,
+				Description: "Description of the element.",
 				Type:        schema.TypeString,
 			},
-			"objects": &schema.Schema{
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"catalog_id": &schema.Schema{
-							Computed:    true,
-							Description: "Catalog id of the object.",
-							Type:        schema.TypeString,
-						},
-						"create_date": &schema.Schema{
-							Computed:    true,
-							Description: "Date when the element was created.",
-							Type:        schema.TypeString,
-						},
-						"database_name": &schema.Schema{
-							Computed:    true,
-							Description: "Name of database where the element belongs to.",
-							Type:        schema.TypeString,
-						},
-						"description": &schema.Schema{
-							Computed:    true,
-							Description: "Description of the element.",
-							Type:        schema.TypeString,
-						},
-						"folder": &schema.Schema{
-							Computed:    true,
-							Description: "Folder of the element in lowercase. If the element is not in any folder, the value is /.",
-							Type:        schema.TypeString,
-						},
-						"last_modification_date": &schema.Schema{
-							Computed:    true,
-							Description: "Date when the element was modified for the last time. If the element was never modified, the value is the same as create_date",
-							Type:        schema.TypeString,
-						},
-						"last_user_modifier": &schema.Schema{
-							Computed:    true,
-							Description: "User that modified the element for the last time. If the element was never modified, the value is the same as user_creator.",
-							Type:        schema.TypeString,
-						},
-						"object_name": &schema.Schema{
-							Computed:    true,
-							Description: "Name of the element.",
-							Type:        schema.TypeString,
-						},
-						"sub_type": &schema.Schema{
-							Computed:    true,
-							Description: "subtype: subtype of the element or an empty string if the element does not have a subtype. Elements that have a subtype and what subtypes they can have. View: base, derived, interface or materialized. Datasource: custom, df, essbase, jdbc, json, ldap, odbc, olap, salesforce, sapbwbapi, saperp, ws or xml. Wrapper: custom, df, essbase, html, jdbc, json, ldap, odbc, olap, salesforce, sapbwbapi, saperp, ws or xml.",
-							Type:        schema.TypeString,
-						},
-						"type": &schema.Schema{
-							Computed:    true,
-							Description: "type: type of the element. The values can be association, datasource, folder, storedProcedure, type, view, webService, widget, wrapper.",
-							Type:        schema.TypeString,
-						},
-						"user_creator": &schema.Schema{
-							Computed:    true,
-							Description: "Owner of the element.",
-							Type:        schema.TypeString,
-						},
-					},
-				},
-				ForceNew: true,
-				Type:     schema.TypeList,
+			"folder": &schema.Schema{
+				Computed:    true,
+				Description: "Folder of the element in lowercase. If the element is not in any folder, the value is /.",
+				Type:        schema.TypeString,
+			},
+			"last_modification_date": &schema.Schema{
+				Computed:    true,
+				Description: "Date when the element was modified for the last time. If the element was never modified, the value is the same as create_date",
+				Type:        schema.TypeString,
+			},
+			"last_user_modifier": &schema.Schema{
+				Computed:    true,
+				Description: "User that modified the element for the last time. If the element was never modified, the value is the same as user_creator.",
+				Type:        schema.TypeString,
+			},
+			"name": &schema.Schema{
+				Description: "Name of the view.",
+				Required:    true,
+				Type:        schema.TypeString,
+			},
+			"user_creator": &schema.Schema{
+				Computed:    true,
+				Description: "Owner of the element.",
+				Type:        schema.TypeString,
+			},
+			"vql": &schema.Schema{
+				Description: "VQL selection statement used to create or replace a dervived view.",
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 		},
 	}
@@ -100,53 +66,17 @@ func resourceDerivedView() *schema.Resource {
 
 func createDerivedView(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
-	var contents string
-	var database string
 	var diags diag.Diagnostics
-	var directory string
 	var err error
-	var fileData []byte
-	var sqlStmt string
+	var vql string
 
-	database = d.Get("database").(string)
-	directory = d.Get("directory").(string)
+	vql = d.Get("vql").(string)
 
-	err = filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			if filepath.Ext(path) == ".sql" {
-				fileData, err = ioutil.ReadFile(path)
-				if err != nil {
-					return err
-				}
-				contents = string(fileData)
-				for _, command := range strings.Split(contents, ";") {
-					checkDerivedView := regexp.MustCompile(`(?i)CREATE( OR REPLACE)? VIEW\s+\w{1,}`)
-					if checkDerivedView.MatchString(command) {
-						sqlStmt = fmt.Sprintf(
-							`CONNECT DATABASE %s;
-						%s`,
-							database,
-							command,
-						)
-						client = meta.(*Client)
-						err = client.ExecuteSQL(&sqlStmt)
-						if err != nil {
-							return err
-						}
-					}
-				}
-			}
-		}
-		return err
-	})
+	client = meta.(*Client)
+	err = client.ExecuteSQL(&vql)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	d.SetId(database)
 
 	diags = readDerivedView(ctx, d, meta)
 
@@ -155,51 +85,26 @@ func createDerivedView(ctx context.Context, d *schema.ResourceData, meta interfa
 
 func deleteDerivedView(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var client *Client
-	var contents string
 	var database string
 	var diags diag.Diagnostics
-	var directory string
 	var err error
-	var fileData []byte
 	var name string
-	var sqlStmt string
-	var subString string
+	var vql string
 
-	database = d.Id()
-	directory = d.Get("directory").(string)
+	database = d.Get("database").(string)
+	name = d.Get("name").(string)
 
-	err = filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			if filepath.Ext(path) == ".sql" {
-				fileData, err = ioutil.ReadFile(path)
-				if err != nil {
-					return err
-				}
-				contents = string(fileData)
-				for _, command := range strings.Split(contents, ";") {
-					checkDerivedView := regexp.MustCompile(`(?i)CREATE( OR REPLACE)? VIEW\s+\w{1,}`)
-					if checkDerivedView.MatchString(command) {
-						getName := regexp.MustCompile(`(?i)(CREATE|OR|REPLACE|VIEW|AS|\s)`)
-						subString = checkDerivedView.FindString(command)
-
-						name = getName.ReplaceAllString(subString, "")
-						sqlStmt = fmt.Sprintf(
-							`CONNECT DATABASE %s;
-							DROP VIEW IF EXISTS %s CASCADE;`,
-							database,
-							name,
-						)
-						client = meta.(*Client)
-						err = client.ExecuteSQL(&sqlStmt)
-						if err != nil {
-							return err
-						}
-					}
-				}
-			}
-		}
-		return err
-	})
+	vql = fmt.Sprintf(
+		`CONNECT DATABASE %s;
+DROP VIEW IF EXISTS %s CASCADE;`,
+		database,
+		name,
+	)
+	client = meta.(*Client)
+	err = client.ExecuteSQL(&vql)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -215,19 +120,32 @@ func readDerivedView(ctx context.Context, d *schema.ResourceData, meta interface
 	var database string
 	var diags diag.Diagnostics
 	var err error
-	var records []interface{}
+	var name string
 	var resultSet [][]string
 	var sqlStmt string
 
-	database = d.Id()
+	database = d.Get("database").(string)
+	name = d.Get("name").(string)
 
 	sqlStmt = fmt.Sprintf(
 		`
-CALL GET_ELEMENTS(
-    '%s',
-    NULL,
-    'Views'
-);`,
+CONNECT DATABASE %s;
+SELECT
+  internal_id,
+  database_name,
+  name,
+  user_creator,
+  last_user_modifier,
+  create_date,
+  last_modification_date,
+  description,
+  folder
+FROM GET_ELEMENTS()
+WHERE name = '%s'
+  AND database_name = '%s'
+  AND type = 'view'
+  AND subtype = 'derived';`,
+		name,
 		database,
 	)
 
@@ -238,31 +156,33 @@ CALL GET_ELEMENTS(
 		return diag.FromErr(err)
 	}
 
-	for _, tuple := range resultSet {
-
-		records = append(
-			records,
-			map[string]interface{}{
-				"database_name":          tuple[0],
-				"object_name":            tuple[1],
-				"type":                   tuple[2],
-				"sub_type":               tuple[3],
-				"user_creator":           tuple[4],
-				"last_user_modifier":     tuple[5],
-				"create_date":            tuple[6],
-				"last_modification_date": tuple[7],
-				"description":            tuple[8],
-				"folder":                 tuple[9],
-				"catalog_id":             tuple[11],
-			},
-		)
-	}
-
-	if err = d.Set("objects", records); err != nil {
+	if err = d.Set("id", resultSet[0][0]); err != nil {
 		diags = diag.FromErr(err)
 	}
-
-	d.SetId(database)
+	if err = d.Set("database", resultSet[0][1]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("name", resultSet[0][2]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("user_creator", resultSet[0][3]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("last_user_modifier", resultSet[0][4]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("create_date", resultSet[0][5]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("last_modification_date", resultSet[0][6]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("description", resultSet[0][7]); err != nil {
+		diags = diag.FromErr(err)
+	}
+	if err = d.Set("folder", resultSet[0][8]); err != nil {
+		diags = diag.FromErr(err)
+	}
 
 	return diags
 }

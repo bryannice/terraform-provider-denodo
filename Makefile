@@ -65,6 +65,18 @@ docker-rmi-for-image:
 		$(DOCKER_IMAGE_NAME):$(GIT_VERSION) \
 		$(DOCKER_IMAGE_NAME):latest
 
+.PHONY: dev-env-up
+dev-env-up:
+	@echo "$(BOLD)$(YELLOW)Create development environment$(RESET)"
+	@docker-compose -f deployments/docker-compose.yml up -d
+	@echo "$(BOLD)$(GREEN)Completed creating development environment.$(RESET)"
+
+.PHONY: dev-env-down
+dev-env-down:
+	@echo "$(BOLD)$(YELLOW)Create development environment$(RESET)"
+	@docker-compose -f deployments/docker-compose.yml down
+	@echo "$(BOLD)$(GREEN)Completed creating development environment.$(RESET)"
+
 # -----------------------------------------------------------------------------
 # Terraform Provider Denodo Targets
 # -----------------------------------------------------------------------------
@@ -77,16 +89,10 @@ clean-build:
 .PHONY: clean-examples
 clean-examples:
 	@echo "$(BOLD)$(YELLOW)Cleaning up working directory.$(RESET)"
-	@for folder in $$(ls examples); \
-	do \
-  		if [[ -d "examples/$${folder}" ]]; \
-  		then \
-  			rm -rf examples/$${folder}/.terraform; \
-  			rm -rf examples/$${folder}/.terraform.lock.hcl; \
-  			rm -rf examples/$${folder}/terraform.tfstate; \
-  			rm -rf examples/$${folder}/terraform.tfstate.backup; \
-  		fi; \
-  	done
+	@rm -rf tests/.terraform
+	@rm -rf tests/.terraform.lock.hcl
+	@rm -rf tests/terraform.tfstate
+	@rm -rf tests/terraform.tfstate.backup
 	@echo "$(BOLD)$(GREEN)Completed cleaning up working directory.$(RESET)"
 
 .PHONY: fmt
@@ -105,51 +111,14 @@ install: clean-build build
 .PHONY: test-examples
 test-examples: clean-examples
 	@echo "$(BOLD)$(YELLOW)Create Virtual Database.$(RESET)"
-	@cd examples/virtual_database; terraform fmt; terraform init; terraform apply --auto-approve; cd -
+	@cd tests; terraform fmt; terraform init; terraform apply --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Virtual Database Creation.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Create Folders.$(RESET)"
-	@cd examples/folders; terraform fmt; terraform init; terraform apply --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Folders Creation.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Create JDBC Data Source.$(RESET)"
-	@cd examples/jdbc_data_source; terraform fmt; terraform init; terraform apply --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed JDBC Data Source Creation.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Create Base Views.$(RESET)"
-	@cd examples/base_views; terraform fmt; terraform init; terraform apply --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Base Views Creation.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Create Dervived Views.$(RESET)"
-	@cd examples/dervived_views; terraform fmt; terraform init; terraform apply --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Dervived Views Creation.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Create Roles.$(RESET)"
-	@cd examples/roles; terraform fmt; terraform init; terraform apply --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Roles Creation.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Create Users.$(RESET)"
-	@cd examples/users; terraform fmt; terraform init; terraform apply --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Users Creation.$(RESET)"
 
 .PHONY: destroy-examples
 destroy-examples:
-	@echo "$(BOLD)$(YELLOW)Destroy Users.$(RESET)"
-	@cd examples/users; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Users Destruction.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Destroy Roles.$(RESET)"
-	@cd examples/roles; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Roles Destruction.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Destroy Base Views.$(RESET)"
-	@cd examples/base_views; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Base Views Destruction.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Destroy Dervived Views.$(RESET)"
-	@cd examples/dervived_views; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Dervived Views Destruction.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Destroy JDBC Data Source.$(RESET)"
-	@cd examples/jdbc_data_source; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed JDBC Data Source Destruction.$(RESET)"
-	@echo "$(BOLD)$(YELLOW)Destroy Folders.$(RESET)"
-	@cd examples/folders; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
-	@echo "$(BOLD)$(YELLOW)Completed Folders Destruction.$(RESET)"
 	@echo "$(BOLD)$(YELLOW)Destroy Virtual Database.$(RESET)"
-	@cd examples/virtual_database; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
+	@cd tests; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Virtual Database Destruction.$(RESET)"
-
 .PHONY: test
 test:
 	@cd denodo; go test; cd -

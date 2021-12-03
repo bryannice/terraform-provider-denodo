@@ -1,0 +1,5 @@
+ARG TARGET_IMAGE=debian:10.9
+
+FROM $TARGET_IMAGE
+
+COPY denodo-express-install-8_0-linux64 /denodo-express-install-8_0-linux64

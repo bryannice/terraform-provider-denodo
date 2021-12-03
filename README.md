@@ -1,5 +1,22 @@
 # Terraform Provider Denodo
 
+## Development Environment
+
+The development environment used is a docker-compose stack in the deployments folder. It spins up containers for postgresql, terraform development environment, denodo virtual data port, and denodo design studio. This allows testing for the provider running terraform apply and destroy commands. The postgresql container acts as a data source where it holds sample data within the northwinds database.
+
++ Postgresql 14.1
++ Terraform
+  + Go Lang
+  + Gopher Notes
++ Denodo: Virtual Data Port
++ Denodo: Design Studio
+
+## Permissions Documentation
+
++ [User and Access Right in Virtual DataPort](https://community.denodo.com/docs/html/browse/latest/en/vdp/administration/databases_users_and_access_rights_in_virtual_dataport/user_and_access_right_in_virtual_dataport/user_and_access_right_in_virtual_dataport#insert-update-and-delete-privileges)
++ [Data Catalog Permissions](https://community.denodo.com/docs/html/browse/latest/en/vdp/data_catalog/authorization/authorization#dc-authorization)
++ [Diagnostics and Monitoring Permissions](https://community.denodo.com/docs/html/browse/latest/en/vdp/dmt/authorization/authorization#dmt-authorization)
+
 ## References
 
 + [Call APIs with Terraform Providers](https://learn.hashicorp.com/collections/terraform/providers)

@@ -1,0 +1,18 @@
+ARG BASE_IMAGE=denodo_installer
+ARG TARGET_IMAGE=debian:10.9
+
+FROM $BASE_IMAGE AS STEP_1
+
+COPY denodo-express-lic-8_0-202103.lic /denodo-express-install-8_0-linux64/denodo-express-lic-8_0-202103.lic
+COPY virtual_data_port.xml /denodo-express-install-8_0-linux64/virtual_data_port.xml
+
+RUN cd /denodo-express-install-8_0-linux64 \
+ && ./installer_cli.sh install --autoinstaller virtual_data_port.xml
+
+FROM $TARGET_IMAGE AS STEP_2
+
+COPY --from=STEP_1 /opt/denodo /opt/denodo
+COPY vqlserver.sh /opt/denodo/bin/vqlserver.sh
+RUN chmod +x /opt/denodo/bin/vqlserver.sh
+
+ENTRYPOINT ["/opt/denodo/bin/vqlserver.sh", "startup"]

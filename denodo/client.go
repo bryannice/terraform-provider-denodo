@@ -3,7 +3,6 @@ package denodo
 import (
 	"database/sql"
 	"fmt"
-	"net/url"
 
 	_ "github.com/lib/pq"
 )
@@ -25,13 +24,13 @@ func (c *Config) NewClient(password, username *string) (*Client, error) {
 
 	if (password != nil) && (username != nil) {
 		denodoConnUrl := fmt.Sprintf(
-			"postgres://%s:%s@%s:%d/%s?sslmode=%s",
+			"user=%s password=%s host=%s port=%d sslmode=%s database=%s",
 			*username,
-			url.QueryEscape(*password),
+			*password,
 			c.Host,
 			c.Port,
-			c.Database,
 			c.SslMode,
+			c.Database,
 		)
 
 		client.Connection, err = sql.Open("postgres", denodoConnUrl)
