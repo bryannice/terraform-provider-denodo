@@ -6,9 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [markdownlint](https://dlaa.me/markdownlint/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# [0.5.8] - 2021-08-14
+# [0.6.0] - 2021-12-05
 
-### Added to 0.5.8
+### Added to 0.6.0
+
+- Added better database connect control
+  - Close session after executing sql to reduce likely hood of getting too many sessions error
+  - Removed the connection requirement to specify a database for the client, so that it generalizes terraform's connection
+  - Added database connection variables to control the provider wit
+    - max_open_conns
+    - max_idle_conns
+- Updated base view resource
+  - Added better query to fetch information on the base view created
+  - Changed the id of the object to the catalog id in denodo
+  - Added custom VQL input ability
+- Updated derived view resource
+  - Added better query to fetch information on the base view created
+  - Removed looping on a directory feature
+  - Added custom VQL input ability
+
+# [0.5.9] - 2021-08-14
+
+### Added to 0.5.9
 
 - Reverting to previous create pattern in 0.5.7.
 - Correcting metadata fetching when object is created.

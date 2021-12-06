@@ -13,6 +13,7 @@ func dataSourceJDBCDataSourceObject() *schema.Resource {
 		ReadContext: readJDBCDataSourceObject,
 		Schema: map[string]*schema.Schema{
 			"catalog_name": &schema.Schema{
+				Default:     "NULL",
 				Description: "Name of the catalog for which you want to get the list of tables. If the data source does not support catalogs, set to null. If null and the data source does support catalogs, the procedure will return all the matching tables across all catalogs.",
 				Optional:    true,
 				Type:        schema.TypeString,
@@ -28,8 +29,9 @@ func dataSourceJDBCDataSourceObject() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"schema_name": &schema.Schema{
+				Default:     "NULL",
 				Description: "When the data source has to insert several rows into the database of this data source, it can insert them in batches. This number sets the number of queries per batch.",
-				Required:    true,
+				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"objects": &schema.Schema{
@@ -81,21 +83,21 @@ func readJDBCDataSourceObject(ctx context.Context, d *schema.ResourceData, meta 
 	name = d.Get("name").(string)
 	schemaName = d.Get("schema_name").(string)
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
 CALL GET_JDBC_DATASOURCE_TABLES(
     '%s',
-    '%s',
-    '%s'
+    %s,
+    %s
 );`,
 		database,
 		name,
-		catalogName,
-		schemaName,
+		TenaryString(catalogName == "NULL", catalogName, fmt.Sprintf("'%s'", catalogName)),
+		TenaryString(schemaName == "NULL", schemaName, fmt.Sprintf("'%s'", schemaName)),
 	)
-
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {

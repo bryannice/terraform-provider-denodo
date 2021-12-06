@@ -143,11 +143,13 @@ func deleteUser(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 	var username string
 
 	username = d.Get("username").(string)
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		"DROP USER IF EXISTS %s;",
 		username,
 	)
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
@@ -168,12 +170,13 @@ func readUser(ctx context.Context, d *schema.ResourceData, meta interface{}) dia
 	var sqlStmt string
 
 	name = d.Id()
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		"DESC USER %s;",
 		name,
 	)
-
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {
@@ -201,6 +204,9 @@ func updateUser(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 	username = d.Get("username").(string)
 	revoke = d.Get("revoke").(bool)
 	roles = d.Get("roles").(string)
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		"ALTER USER %s\n",
 		username,
@@ -217,8 +223,6 @@ func updateUser(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 		"ROLE %s;",
 		roles,
 	)
-
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {

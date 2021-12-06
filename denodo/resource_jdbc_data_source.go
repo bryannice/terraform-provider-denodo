@@ -517,6 +517,9 @@ func deleteJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 
 	denodoDatabase = d.Get("denodo_database").(string)
 	name = d.Id()
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s; 
@@ -524,7 +527,6 @@ DROP DATASOURCE JDBC IF EXISTS %s CASCADE;`,
 		denodoDatabase,
 		name,
 	)
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
@@ -547,12 +549,14 @@ func readJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta interf
 
 	denodoDatabase = d.Get("denodo_database").(string)
 	name = d.Id()
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		"CONNECT DATABASE %s; DESC DATASOURCE JDBC %s;",
 		denodoDatabase,
 		name,
 	)
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {
@@ -655,6 +659,8 @@ func updateJDBCDataSource(ctx context.Context, d *schema.ResourceData, meta inte
 	useForQueryOptimization = d.Get("use_for_query_optimization").(string)
 	validationQuery = d.Get("validation_query").(string)
 	workDir = d.Get("work_dir").(string)
+
+	client = meta.(*Client)
 
 	sqlStmt = fmt.Sprintf(
 		`
@@ -814,8 +820,6 @@ DATA_LOAD_CONFIGURATION (`
 DESCRIPTION = '%s';`,
 		dataSourceDescription,
 	)
-
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {

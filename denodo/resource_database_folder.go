@@ -85,6 +85,8 @@ func createDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta inte
 	description = d.Get("description").(string)
 	folderPath = d.Get("folder_path").(string)
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
@@ -94,7 +96,6 @@ DESCRIPTION '%s';`,
 		folderPath,
 		description,
 	)
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
@@ -118,6 +119,9 @@ func deleteDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta inte
 
 	database = d.Get("database").(string)
 	folderPath = d.Id()
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
@@ -125,8 +129,6 @@ DROP FOLDER IF EXISTS '%s' CASCADE;`,
 		database,
 		folderPath,
 	)
-
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
@@ -149,6 +151,9 @@ func readDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta interf
 
 	database = d.Get("database").(string)
 	folderPath = d.Id()
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
@@ -156,8 +161,6 @@ DESC FOLDER '%s';`,
 		database,
 		folderPath,
 	)
-
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {
@@ -197,6 +200,9 @@ func updateDatabaseFolder(ctx context.Context, d *schema.ResourceData, meta inte
 	folderPath = d.Get("folder_path").(string)
 	move = d.Get("move").(bool)
 	renamePath = d.Get("rename_path").(string)
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
@@ -238,8 +244,6 @@ ALTER FOLDER '%s'
 			copyNew,
 		)
 	}
-
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {

@@ -95,8 +95,12 @@ clean-examples:
 	@rm -rf tests/terraform.tfstate.backup
 	@echo "$(BOLD)$(GREEN)Completed cleaning up working directory.$(RESET)"
 
-.PHONY: fmt
-fmt:
+.PHONY: tf-fmt
+tf-fmt:
+	@terraform fmt -recursive tests
+
+.PHONY: go-fmt
+go-fmt:
 	@go fmt ./...
 
 .PHONY: build
@@ -111,14 +115,22 @@ install: clean-build build
 .PHONY: test-examples
 test-examples: clean-examples
 	@echo "$(BOLD)$(YELLOW)Create Virtual Database.$(RESET)"
-	@cd tests; terraform fmt; terraform init; terraform apply --auto-approve; cd -
+	@cd tests; terraform fmt; terraform init; terraform apply --auto-approve -parallelism=2 -target=data.denodo_jdbc_data_source_object.data_bv; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Virtual Database Creation.$(RESET)"
+	@echo "$(BOLD)$(YELLOW)Create Other Objects.$(RESET)"
+	@cd tests; terraform fmt; terraform init; terraform apply --auto-approve -parallelism=2; cd -
+	@echo "$(BOLD)$(YELLOW)Completed Other Object Creation.$(RESET)"
 
 .PHONY: destroy-examples
 destroy-examples:
 	@echo "$(BOLD)$(YELLOW)Destroy Virtual Database.$(RESET)"
-	@cd tests; terraform fmt; terraform init; terraform destroy --auto-approve; cd -
+	@cd tests; terraform fmt; terraform init; terraform destroy --auto-approve -parallelism=2; cd -
 	@echo "$(BOLD)$(YELLOW)Completed Virtual Database Destruction.$(RESET)"
+
 .PHONY: test
 test:
 	@cd denodo; go test; cd -
+
+.PHONY: docs
+docs:
+	@tfplugindocs

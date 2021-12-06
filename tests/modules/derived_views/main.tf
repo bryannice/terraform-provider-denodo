@@ -12,13 +12,11 @@ terraform {
 }
 
 # -----------------------------------------------------------------------------
-# Creating Users
+# Create Derived View
 # -----------------------------------------------------------------------------
 
-resource "denodo_user" "user" {
-  admin       = var.admin
-  description = var.description
-  password    = var.password
-  roles       = var.roles
-  username    = var.username
+resource "denodo_dervived_view" "dv" {
+  database = var.database
+  name     = var.name
+  vql      = var.vql
 }

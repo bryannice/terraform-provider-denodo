@@ -2,7 +2,7 @@
 
 ## Development Environment
 
-The development environment used is a docker-compose stack in the deployments folder. It spins up containers for postgresql, terraform development environment, denodo virtual data port, and denodo design studio. This allows testing for the provider running terraform apply and destroy commands. The postgresql container acts as a data source where it holds sample data within the northwinds database.
+The development environment used is a docker-compose stack in the deployments folder. It spins up containers for postgresql, terraform development environment, denodo virtual data port, and denodo design studio. This allows testing for the provider running terraform apply and destroy commands. The postgresql container acts as a data source where it holds sample data within the northwinds database. The denodo version is 8.0 using the express license.
 
 + Postgresql 14.1
 + Terraform
@@ -10,6 +10,20 @@ The development environment used is a docker-compose stack in the deployments fo
   + Gopher Notes
 + Denodo: Virtual Data Port
 + Denodo: Design Studio
+
+## Make Targets
+
++ `clean-build` clean up terraform provider build artifacts
++ `clean-examples` clean up terraform examples used for testing the provider
++ `destory-examples` tear down test examples
++ `dev-env-up` spin up docker compose development environment
++ `dev-env-down` tear down docker compose development environment
++ `docs` generate terraform markdown documents
++ `go-fmt` format go lang code
++ `install` build provider and install it
++ `test` test go lang code
++ `test-examples` use examples to test provider
++ `tf-fmt` format terraform files used in test folder
 
 ## Permissions Documentation
 

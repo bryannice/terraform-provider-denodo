@@ -1,19 +1,59 @@
-variable "denodo_database" {
+variable "database_name" {
   type = string
 }
 
-variable "denodo_host" {
+variable "name" {
   type = string
 }
 
-variable "denodo_password" {
-  type = string
+variable "admin" {
+  type = bool
 }
 
-variable "denodo_port" {
-  type = number
+variable "connect" {
+  type = bool
 }
 
-variable "denodo_username" {
-  type = string
+variable "create" {
+  type = bool
+}
+
+variable "create_data_service" {
+  type = bool
+}
+
+variable "create_data_source" {
+  type = bool
+}
+
+variable "create_folder" {
+  type = bool
+}
+
+variable "create_view" {
+  type = bool
+}
+
+variable "execute" {
+  type = bool
+}
+
+variable "file" {
+  type = bool
+}
+
+variable "grant" {
+  type = bool
+}
+
+variable "meta_data" {
+  type = bool
+}
+
+variable "monitor_admin" {
+  type = bool
+}
+
+variable "write" {
+  type = bool
 }

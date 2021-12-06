@@ -98,6 +98,8 @@ func createDatabase(ctx context.Context, d *schema.ResourceData, meta interface{
 	querySimplification = d.Get("query_simplification").(string)
 	summaryRewrite = d.Get("summary_rewrite").(string)
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CREATE DATABASE %s
@@ -121,7 +123,6 @@ SUMMARY REWRITE %s;`,
 		querySimplification,
 		summaryRewrite,
 	)
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
@@ -144,12 +145,12 @@ func deleteDatabase(ctx context.Context, d *schema.ResourceData, meta interface{
 
 	name = d.Id()
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		"DROP DATABASE IF EXISTS %s CASCADE;",
 		name,
 	)
-
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
@@ -171,12 +172,12 @@ func readDatabase(ctx context.Context, d *schema.ResourceData, meta interface{})
 
 	name = d.Id()
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		"DESC DATABASE %s;",
 		name,
 	)
-
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {
@@ -209,6 +210,8 @@ func updateDatabase(ctx context.Context, d *schema.ResourceData, meta interface{
 	odbcAuthentication = d.Get("odbc_authentication").(string)
 	querySimplification = d.Get("query_simplification").(string)
 	summaryRewrite = d.Get("summary_rewrite").(string)
+
+	client = meta.(*Client)
 
 	sqlStmt = fmt.Sprintf(
 		"ALTER DATABASE %s",
@@ -250,7 +253,6 @@ func updateDatabase(ctx context.Context, d *schema.ResourceData, meta interface{
 			querySimplification,
 		)
 	}
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {

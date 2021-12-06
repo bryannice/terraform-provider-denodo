@@ -11,9 +11,30 @@ database:
   name: northwind
   summary_rewrite: DEFAULT
   query_simplification: DEFAULT
+roles:
+  - name: northwind_sar
+    admin: false
+    connect: true
+    create: false
+    create_data_service: false
+    create_data_source: false
+    create_folder: false
+    create_view: false
+    execute: true
+    file: false
+    grant: false
+    meta_data: true
+    monitor_admin: false
+    write: false
+users:
+  - name: northwind_reader
+    admin: false
+    description: subject area reader
+    password: P@s$w0rd!
 folders:
-  - /data_source
-  - /base_view
+  - /01_data_source
+  - /02_base_view
+  - /03_derived_view
 data_source:
   class_path: postgresql-10
   data_source_database_type: postgresql
@@ -24,3 +45,11 @@ data_source:
   name: ds_northwind
   password: postgres
   username: postgres
+base_views:
+  catalog_name:
+  schema_name: public
+  objects:
+    - customer_demographics
+    - customers
+    - region
+    - territories

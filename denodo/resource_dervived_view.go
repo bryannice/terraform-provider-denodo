@@ -73,6 +73,7 @@ func createDerivedView(ctx context.Context, d *schema.ResourceData, meta interfa
 	vql = d.Get("vql").(string)
 
 	client = meta.(*Client)
+
 	err = client.ExecuteSQL(&vql)
 	if err != nil {
 		return diag.FromErr(err)
@@ -94,13 +95,15 @@ func deleteDerivedView(ctx context.Context, d *schema.ResourceData, meta interfa
 	database = d.Get("database").(string)
 	name = d.Get("name").(string)
 
+	client = meta.(*Client)
+
 	vql = fmt.Sprintf(
 		`CONNECT DATABASE %s;
 DROP VIEW IF EXISTS %s CASCADE;`,
 		database,
 		name,
 	)
-	client = meta.(*Client)
+
 	err = client.ExecuteSQL(&vql)
 	if err != nil {
 		return diag.FromErr(err)
@@ -127,6 +130,8 @@ func readDerivedView(ctx context.Context, d *schema.ResourceData, meta interface
 	database = d.Get("database").(string)
 	name = d.Get("name").(string)
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
@@ -145,20 +150,17 @@ WHERE name = '%s'
   AND database_name = '%s'
   AND type = 'view'
   AND subtype = 'derived';`,
+		database,
 		name,
 		database,
 	)
-
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = d.Set("id", resultSet[0][0]); err != nil {
-		diags = diag.FromErr(err)
-	}
+	d.SetId(resultSet[0][0])
 	if err = d.Set("database", resultSet[0][1]); err != nil {
 		diags = diag.FromErr(err)
 	}

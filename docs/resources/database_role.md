@@ -6,7 +6,8 @@ description: |-
   Provision and/or configure database role.
 ---
 
-# denodo_database_role
+# denodo_database_role (Resource)
+
 
 ## Example Usage
 
@@ -42,18 +43,39 @@ resource "denodo_database_role" "db_role_read" {
 
 - **admin** (Boolean) Admin privilege over a database.
 - **all_privileges** (Boolean) All privileges CONNECT, CREATE, CREATE_DATA_SOURCE, CREATE_VIEW, CREATE_DATA_SERVICE, CREATE_FOLDER, EXECUTE, METADATA, WRITE, and FILE.
+- **all_users** (Boolean) granted by default to new local users. Additionally, you can automatically grant it to all users that connect to Virtual DataPort using Kerberos authentication, SAML 2.0 or to a database with LDAP authentication.
+- **assign_privileges** (Boolean) grants the privilege of granting/revoking privileges to other users.
 - **connect** (Boolean) Connect privilege to the database.
 - **create** (Boolean) Create privilege for all objects in a database.
 - **create_data_service** (Boolean) Create data service privilege in a database.
 - **create_data_source** (Boolean) Create data source privilege in a database.
 - **create_folder** (Boolean) Create folder privilege in a database.
+- **create_role** (Boolean) create_user and create_role: grant the privilege of creating users and roles.
+- **create_temporary_table** (Boolean) grants the privilege of creating temporary tables. This is useful to allow a user account to create temporary tables but do not want to grant the privilege CREATE nor CREATE VIEW because it would allow the user to create other types of elements.
+- **create_user** (Boolean) create_user and create_role: grant the privilege of creating users and roles.
 - **create_view** (Boolean) Create view privilege in a database.
+- **data_catalog_admin** (Boolean) Create/Delete categories, Edit categories, Assign categories, Create/Delete tags, Edit tags, Assign tags, Create/Delete custom elements, Edit custom elements, Assign custom elements, Edit elements, Synchronize, Import/Export, Servers, Personalize, Content, Permissions, Create endorsements, Edit endorsements, Delete endorsements, Create warnings, Edit warnings, Delete warnings, Create deprecations, Edit deprecations, and Delete deprecations
+- **data_catalog_classifier** (Boolean) Personalize, and Content
+- **data_catalog_content_admin** (Boolean) can change it Assign categories, Assign tags, and Assign custom elements
+- **data_catalog_editor** (Boolean) Edit categories, Assign categories, Edit tags, Assign tags, Edit custom elements, Assign custom elements, Edit elements, Edit endorsements, and Edit warnings
+- **data_catalog_exporter** (Boolean) In the Export dialog you can configure that these users are the only ones authorized to export the query results to specific formats.
+- **data_catalog_manager** (Boolean) Create/Delete categories, Edit categories, Assign categories, Create/Delete tags, Edit tags, Assign tags, Create/Delete custom elements, Edit custom elements, Assign custom elements, Edit elements, Create endorsements, Edit endorsements, Delete endorsements, Create warnings, Edit warnings, Delete warnings, Create deprecations, Edit deprecations, and Delete deprecations
+- **delete** (Boolean) delete privileges on a database.
+- **diagnostic_monitoring_tool_admin** (Boolean) role to be able to change the server configuration of the Diagnostic & Monitoring Tool.
+- **diagnostic_monitoring_tool_create_diagnostic** (Boolean) role to create a new diagnostic.
+- **disable_cache_query** (Boolean) grants the privilege to execute queries disabling the cache of views over which the user does not have WRITE privleges. The cache can be disabled using the context clause 'cache'='off'.
 - **execute** (Boolean) Execute privilege on objects in a database.
 - **file** (Boolean) File privilege in a database to browse through directories.
 - **grant** (Boolean) Grant privileges on a database.
 - **id** (String) The ID of this resource.
+- **impersonator** (Boolean) when users with this role publish REST web services, these services can impersonate other users.
+- **insert** (Boolean) insert privileges on a database.
 - **meta_data** (Boolean) Metadata privilege to get view information in the database.
-- **monitor_admin** (Boolean) Monitoring admin role on the database.
+- **monitor_admin** (Boolean) grants the privilege of connecting to the monitoring interface of Virtual DataPort. This interface uses the JMX protocol (Java Management Extensions).
 - **revoke** (Boolean) Revoke privileges on a database.
-- **scheduler_admin** (Boolean) Scheduling admin role on the database.
+- **scheduler_admin** (Boolean) Used by the Scheduler Administration Tool. The users that have this role assigned can perform any task in the Scheduler Administration Tool.
+- **server_admin** (Boolean) equivalent to being an administrator user of Virtual DataPort, except that it does not grant the privilege of connecting to Virtual DataPort via JMX. That is, a user with this role can manage databases, change settings of the Server, etc. A user with this role also needs the role 'assignprivileges' (see below) to manage the privileges of users and roles.
+- **update** (Boolean) update privileges on a database.
 - **write** (Boolean) Write privileges on elements in a database.
+
+

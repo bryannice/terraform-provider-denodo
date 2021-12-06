@@ -6,14 +6,16 @@ description: |-
   Create Dervived view from file.
 ---
 
-# denodo_dervived_view
+# denodo_dervived_view (Resource)
+
 
 ## Example Usage
 
 ```terraform
 resource "denodo_dervived_view" "dv" {
-  database  = var.database
-  directory = var.directory
+  database = var.database
+  name     = var.name
+  vql      = var.vql
 }
 ```
 
@@ -23,31 +25,20 @@ resource "denodo_dervived_view" "dv" {
 ### Required
 
 - **database** (String) Database where the base view will reside.
+- **name** (String) Name of the view.
+- **vql** (String) VQL selection statement used to create or replace a dervived view.
 
 ### Optional
 
-- **directory** (String) Directory (or directories) with the sql files containing VQL to create or replace dervived views.
 - **id** (String) The ID of this resource.
 
 ### Read-Only
 
-- **objects** (List of Object) (see [below for nested schema](#nestedatt--objects))
-
-<a id="nestedatt--objects"></a>
-### Nested Schema for `objects`
-
-Read-Only:
-
-- **catalog_id** (String)
-- **create_date** (String)
-- **database_name** (String)
-- **description** (String)
-- **folder** (String)
-- **last_modification_date** (String)
-- **last_user_modifier** (String)
-- **object_name** (String)
-- **sub_type** (String)
-- **type** (String)
-- **user_creator** (String)
+- **create_date** (String) Date when the element was created.
+- **description** (String) Description of the element.
+- **folder** (String) Folder of the element in lowercase. If the element is not in any folder, the value is /.
+- **last_modification_date** (String) Date when the element was modified for the last time. If the element was never modified, the value is the same as create_date
+- **last_user_modifier** (String) User that modified the element for the last time. If the element was never modified, the value is the same as user_creator.
+- **user_creator** (String) Owner of the element.
 
 

@@ -15,6 +15,11 @@ func resourceBaseView() *schema.Resource {
 		ReadContext:   readBaseView,
 		UpdateContext: updateBaseView,
 		Schema: map[string]*schema.Schema{
+			"create_date": &schema.Schema{
+				Computed:    true,
+				Description: "Date when the element was created.",
+				Type:        schema.TypeString,
+			},
 			"database": &schema.Schema{
 				Description: "Database where the base view will reside.",
 				Required:    true,
@@ -22,7 +27,7 @@ func resourceBaseView() *schema.Resource {
 			},
 			"data_source_name": &schema.Schema{
 				Description: "Name of the data source.",
-				Required:    true,
+				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"data_source_catalog_name": &schema.Schema{
@@ -33,7 +38,7 @@ func resourceBaseView() *schema.Resource {
 			},
 			"data_source_database": &schema.Schema{
 				Description: "Name of the database to which the JDBC data source belongs.",
-				Required:    true,
+				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"data_source_schema_name": &schema.Schema{
@@ -44,7 +49,7 @@ func resourceBaseView() *schema.Resource {
 			},
 			"data_source_table_name": &schema.Schema{
 				Description: "Name of the table/view over which to create the base view.",
-				Required:    true,
+				Optional:    true,
 				Type:        schema.TypeString,
 			},
 			"description": &schema.Schema{
@@ -79,8 +84,8 @@ func resourceBaseView() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"vql": &schema.Schema{
-				Description: "VQL selection statement used to create or replace a dervived view.",
-				Required:    true,
+				Description: "VQL selection statement used to create or replace a view.",
+				Optional:    true,
 				Type:        schema.TypeString,
 			},
 		},
@@ -113,6 +118,8 @@ func createBaseView(ctx context.Context, d *schema.ResourceData, meta interface{
 	name = d.Get("name").(string)
 	vql = d.Get("vql").(string)
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`CONNECT DATABASE %s;
 `,
@@ -139,8 +146,6 @@ func createBaseView(ctx context.Context, d *schema.ResourceData, meta interface{
 			TenaryString(folder == "NULL", folder, fmt.Sprintf("'%s'", folder)),
 			dataSourceDatabase,
 		)
-
-		client = meta.(*Client)
 
 		resultSet, err = client.ResultSet(&sqlStmt)
 		if err != nil {
@@ -181,7 +186,9 @@ func deleteBaseView(ctx context.Context, d *schema.ResourceData, meta interface{
 	var sqlStmt string
 
 	database = d.Get("database").(string)
-	name = d.Id()
+	name = d.Get("name").(string)
+
+	client = meta.(*Client)
 
 	sqlStmt = fmt.Sprintf(
 		`
@@ -190,8 +197,6 @@ DROP VIEW IF EXISTS %s CASCADE;`,
 		database,
 		name,
 	)
-
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
@@ -215,6 +220,8 @@ func readBaseView(ctx context.Context, d *schema.ResourceData, meta interface{})
 	database = d.Get("database").(string)
 	name = d.Get("name").(string)
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
@@ -233,20 +240,17 @@ WHERE name = '%s'
   AND database_name = '%s'
   AND type = 'view'
   AND subtype = 'base';`,
+		database,
 		name,
 		database,
 	)
-
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = d.Set("id", resultSet[0][0]); err != nil {
-		diags = diag.FromErr(err)
-	}
+	d.SetId(resultSet[0][0])
 	if err = d.Set("database", resultSet[0][1]); err != nil {
 		diags = diag.FromErr(err)
 	}

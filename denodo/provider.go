@@ -36,6 +36,20 @@ func Provider() *schema.Provider {
 				Required:    true,
 				Type:        schema.TypeString,
 			},
+			"max_open_conns": &schema.Schema{
+				Default:     4,
+				DefaultFunc: schema.EnvDefaultFunc("DENODO_MAX_OPEN_CONNS", nil),
+				Description: "Host to the Denodo platform.",
+				Optional:    true,
+				Type:        schema.TypeInt,
+			},
+			"max_idle_conns": &schema.Schema{
+				Default:     0,
+				DefaultFunc: schema.EnvDefaultFunc("DENODO_MAX_IDLE_CONNS", nil),
+				Description: "Host to the Denodo platform.",
+				Optional:    true,
+				Type:        schema.TypeInt,
+			},
 			"password": &schema.Schema{
 				DefaultFunc: schema.EnvDefaultFunc("DENODO_PASSWORD", "admin"),
 				Description: "Password used to connect to the Denodo platform.",
@@ -77,6 +91,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	config = new(Config)
 	config.Database = d.Get("database").(string)
 	config.Host = d.Get("host").(string)
+	config.MaxOpenConns = d.Get("max_open_conns").(int)
+	config.MaxIdleConns = d.Get("max_idle_conns").(int)
 	config.Port = d.Get("port").(int)
 	config.SslMode = d.Get("ssl_mode").(string)
 

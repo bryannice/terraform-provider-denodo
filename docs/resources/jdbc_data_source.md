@@ -6,7 +6,7 @@ description: |-
   Provision and/or configure JDBC data source.
 ---
 
-# denodo_jdbc_data_source
+# denodo_jdbc_data_source (Resource)
 
 ## Example Usage
 
@@ -72,3 +72,5 @@ resource "denodo_jdbc_data_source" "db_ds" {
 - **use_for_query_optimization** (String) Data load configuration to optimize for data movement workload.
 - **validation_query** (String) SQL query executed by the connection pool to check if a connection is still valid; also known as “ping query”. It is only used when at least one of TESTONBORROW, TESTONRETURN or TESTWHILEIDLE are true. (default value: depends on the adapter)
 - **work_dir** (String) Work directory used by bulk load configuration. (Oracle only)
+
+

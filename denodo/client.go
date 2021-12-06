@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-	Database string
-	Host     string
-	Port     int
-	SslMode  string
+	Database     string
+	Host         string
+	MaxOpenConns int
+	MaxIdleConns int
+	Port         int
+	SslMode      string
 }
 
 type Client struct {
@@ -34,6 +36,9 @@ func (c *Config) NewClient(password, username *string) (*Client, error) {
 		)
 
 		client.Connection, err = sql.Open("postgres", denodoConnUrl)
+		client.Connection.SetMaxOpenConns(c.MaxOpenConns)
+		client.Connection.SetMaxIdleConns(c.MaxIdleConns)
+
 		if err != nil {
 			return nil, err
 		}
@@ -81,6 +86,8 @@ func (c *Client) ResultSet(sqlStmt *string) ([][]string, error) {
 		tableData = append(tableData, record)
 	}
 
+	results.Close()
+
 	return tableData, nil
 }
 
@@ -91,6 +98,14 @@ func (c *Client) ExecuteSQL(sqlStmt *string) error {
 	if err != nil {
 		return err
 	}
+
+	return err
+}
+
+func (c *Client) CloseSession() error {
+	var err error
+
+	err = c.Connection.Close()
 
 	return err
 }

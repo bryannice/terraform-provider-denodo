@@ -321,6 +321,8 @@ func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	update = d.Get("update").(bool)
 	write = d.Get("write").(bool)
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CREATE ROLE %s
@@ -464,8 +466,6 @@ GRANT `,
 		)
 	}
 
-	client = meta.(*Client)
-
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
 		return diag.FromErr(err)
@@ -486,11 +486,13 @@ func deleteDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	var sqlStmt string
 
 	name = d.Id()
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		"DROP ROLE IF EXISTS %s;",
 		name,
 	)
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
@@ -513,6 +515,9 @@ func readDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	databaseName = d.Get("database_name").(string)
 	name = d.Id()
+
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CONNECT DATABASE %s;
@@ -520,8 +525,6 @@ DESC ROLE %s;`,
 		databaseName,
 		name,
 	)
-
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {
@@ -617,6 +620,8 @@ func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	serverAdmin = d.Get("server_admin").(bool)
 	update = d.Get("update").(bool)
 	write = d.Get("write").(bool)
+
+	client = meta.(*Client)
 
 	sqlStmt = fmt.Sprintf(
 		"ALTER ROLE %s\n",
@@ -761,7 +766,6 @@ func updateDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	sqlStmt += ";"
-	client = meta.(*Client)
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {

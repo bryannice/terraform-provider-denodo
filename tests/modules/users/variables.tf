@@ -1,27 +1,19 @@
-variable "denodo_database" {
+variable "admin" {
+  type = bool
+}
+
+variable "description" {
   type = string
 }
 
-variable "denodo_host" {
+variable "password" {
   type = string
 }
 
-variable "denodo_password" {
+variable "roles" {
   type = string
 }
 
-variable "denodo_port" {
-  type = number
-}
-
-variable "denodo_username" {
-  type = string
-}
-
-variable "denodo_dev_user_password" {
-  type = string
-}
-
-variable "denodo_read_user_password" {
+variable "username" {
   type = string
 }

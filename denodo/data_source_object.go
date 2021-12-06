@@ -110,6 +110,8 @@ func readObject(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 	objectName = d.Get("object_name").(string)
 	objectType = d.Get("object_type").(string)
 
+	client = meta.(*Client)
+
 	sqlStmt = fmt.Sprintf(
 		`
 CALL GET_ELEMENTS(
@@ -121,8 +123,6 @@ CALL GET_ELEMENTS(
 		TenaryString(objectName == "", "NULL", fmt.Sprintf("'%s'", objectName)),
 		objectType,
 	)
-
-	client = meta.(*Client)
 
 	resultSet, err = client.ResultSet(&sqlStmt)
 	if err != nil {

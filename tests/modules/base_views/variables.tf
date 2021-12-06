@@ -1,27 +1,44 @@
-variable "denodo_database" {
-  type = string
-}
-
-variable "denodo_host" {
-  type = string
-}
-
-variable "denodo_password" {
-  type = string
-}
-
-variable "denodo_port" {
-  type = number
-}
-
-variable "denodo_username" {
-  type = string
-}
-
 variable "data_source_catalog_name" {
-  type = string
+  default = ""
+  type    = string
+}
+
+variable "database" {
+  default = ""
+  type    = string
+}
+
+variable "data_source_database" {
+  default = ""
+  type    = string
+}
+
+variable "data_source_name" {
+  default = ""
+  type    = string
+}
+
+variable "folder" {
+  default = ""
+  type    = string
+}
+
+variable "data_source_table_name" {
+  default = ""
+  type    = string
 }
 
 variable "data_source_schema_name" {
-  type = string
+  default = ""
+  type    = string
+}
+
+variable "name" {
+  default = ""
+  type    = string
+}
+
+variable "vql" {
+  default = ""
+  type    = string
 }

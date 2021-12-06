@@ -6,7 +6,7 @@ description: |-
   Provision and/or configure user connecting to platform.
 ---
 
-# denodo_user
+# denodo_user (Resource)
 
 ## Example Usage
 
@@ -36,3 +36,5 @@ resource "denodo_user" "db_usr_read" {
 - **grant** (Boolean) Grant privileges on a role.
 - **id** (String) The ID of this resource.
 - **revoke** (Boolean) Revoke privileges on a database.
+
+
