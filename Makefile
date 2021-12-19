@@ -65,18 +65,6 @@ docker-rmi-for-image:
 		$(DOCKER_IMAGE_NAME):$(GIT_VERSION) \
 		$(DOCKER_IMAGE_NAME):latest
 
-.PHONY: dev-env-up
-dev-env-up:
-	@echo "$(BOLD)$(YELLOW)Create development environment$(RESET)"
-	@docker-compose -f deployments/docker-compose.yml up -d
-	@echo "$(BOLD)$(GREEN)Completed creating development environment.$(RESET)"
-
-.PHONY: dev-env-down
-dev-env-down:
-	@echo "$(BOLD)$(YELLOW)Create development environment$(RESET)"
-	@docker-compose -f deployments/docker-compose.yml down
-	@echo "$(BOLD)$(GREEN)Completed creating development environment.$(RESET)"
-
 # -----------------------------------------------------------------------------
 # Terraform Provider Denodo Targets
 # -----------------------------------------------------------------------------
@@ -104,7 +92,7 @@ go-fmt:
 	@go fmt ./...
 
 .PHONY: build
-build: fmt
+build: go-fmt
 	go build -o ${GIT_REPOSITORY_NAME}
 
 .PHONY: install
@@ -134,3 +122,18 @@ test:
 .PHONY: docs
 docs:
 	@tfplugindocs
+
+# -----------------------------------------------------------------------------
+# Dcoker Compose Targets
+# -----------------------------------------------------------------------------
+.PHONY: dev-env-up
+dev-env-up:
+	@echo "$(BOLD)$(YELLOW)Create development environment$(RESET)"
+	@docker-compose -f deployments/docker-compose.yml up -d
+	@echo "$(BOLD)$(GREEN)Completed creating development environment.$(RESET)"
+
+.PHONY: dev-env-down
+dev-env-down: clean-examples
+	@echo "$(BOLD)$(YELLOW)Create development environment$(RESET)"
+	@docker-compose -f deployments/docker-compose.yml down
+	@echo "$(BOLD)$(GREEN)Completed creating development environment.$(RESET)"
