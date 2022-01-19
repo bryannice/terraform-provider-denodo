@@ -173,13 +173,13 @@ func resourceDatabaseRole() *schema.Resource {
 				Type:        schema.TypeBool,
 			},
 			"grant": &schema.Schema{
-				Default:     true,
+				Default:     false,
 				Description: "Grant privileges on a database.",
 				Optional:    true,
 				Type:        schema.TypeBool,
 			},
 			"impersonator": &schema.Schema{
-				Default:     true,
+				Default:     false,
 				Description: "when users with this role publish REST web services, these services can impersonate other users.",
 				Optional:    true,
 				Type:        schema.TypeBool,
