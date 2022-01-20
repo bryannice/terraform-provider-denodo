@@ -324,11 +324,87 @@ func createDatabaseRole(ctx context.Context, d *schema.ResourceData, meta interf
 	client = meta.(*Client)
 
 	sqlStmt = fmt.Sprintf(
-		`
-CREATE ROLE %s
-GRANT `,
+		"CREATE ROLE %s\n",
 		name,
 	)
+
+	if assignPrivileges ||
+		allUsers ||
+		createRole ||
+		createTemporaryTable ||
+		createUser ||
+		dataCatalogAdmin ||
+		dataCatalogClassifier ||
+		dataCatalogContentAdmin ||
+		dataCatalogEditor ||
+		dataCatalogExporter ||
+		dataCatalogManager ||
+		diagnosticMonitoringToolAdmin ||
+		diagnosticMonitoringToolCreateDiagnostic ||
+		disableCacheQuery ||
+		impersonator ||
+		monitorAdmin ||
+		schedulerAdmin ||
+		serverAdmin {
+		if assignPrivileges {
+			roles = append(roles, "assignprivileges")
+		}
+		if allUsers {
+			roles = append(roles, "allusers")
+		}
+		if createRole {
+			roles = append(roles, "create_role")
+		}
+		if createTemporaryTable {
+			roles = append(roles, "create_temporary_table")
+		}
+		if createUser {
+			roles = append(roles, "create_user")
+		}
+		if dataCatalogAdmin {
+			roles = append(roles, "data_catalog_admin")
+		}
+		if dataCatalogClassifier {
+			roles = append(roles, "data_catalog_classifier")
+		}
+		if dataCatalogContentAdmin {
+			roles = append(roles, "data_catalog_content_admin")
+		}
+		if dataCatalogEditor {
+			roles = append(roles, "data_catalog_editor")
+		}
+		if dataCatalogExporter {
+			roles = append(roles, "data_catalog_exporter")
+		}
+		if dataCatalogManager {
+			roles = append(roles, "data_catalog_manager")
+		}
+		if diagnosticMonitoringToolAdmin {
+			roles = append(roles, "diagnostic_monitoring_tool_admin")
+		}
+		if diagnosticMonitoringToolCreateDiagnostic {
+			roles = append(roles, "diagnostic_monitoring_tool_create_diagnostic")
+		}
+		if disableCacheQuery {
+			roles = append(roles, "disable_cache_query")
+		}
+		if impersonator {
+			roles = append(roles, "impersonator")
+		}
+		if monitorAdmin {
+			roles = append(roles, "monitor_admin")
+		}
+		if schedulerAdmin {
+			roles = append(roles, "scheduler_admin")
+		}
+		if serverAdmin {
+			roles = append(roles, "serveradmin")
+		}
+		sqlStmt += fmt.Sprintf(
+			"GRANT ROLE %s\n",
+			strings.Join(roles, ", "),
+		)
+	}
 
 	if admin {
 		grantClause = append(grantClause, "ADMIN")
@@ -377,94 +453,10 @@ GRANT `,
 	}
 
 	sqlStmt += fmt.Sprintf(
-		"%s ON %s;",
+		"GRANT %s ON %s;",
 		strings.Join(grantClause, ", "),
 		databaseName,
 	)
-
-	if assignPrivileges ||
-		allUsers ||
-		createRole ||
-		createTemporaryTable ||
-		createUser ||
-		dataCatalogAdmin ||
-		dataCatalogClassifier ||
-		dataCatalogContentAdmin ||
-		dataCatalogEditor ||
-		dataCatalogExporter ||
-		dataCatalogManager ||
-		diagnosticMonitoringToolAdmin ||
-		diagnosticMonitoringToolCreateDiagnostic ||
-		disableCacheQuery ||
-		impersonator ||
-		monitorAdmin ||
-		schedulerAdmin ||
-		serverAdmin {
-		sqlStmt += fmt.Sprintf(
-			`
-			ALTER ROLE %s`,
-			name,
-		)
-		if assignPrivileges {
-			grantClause = append(grantClause, "assignprivileges")
-		}
-		if allUsers {
-			grantClause = append(grantClause, "allusers")
-		}
-		if createRole {
-			grantClause = append(grantClause, "create_role")
-		}
-		if createTemporaryTable {
-			grantClause = append(grantClause, "create_temporary_table")
-		}
-		if createUser {
-			grantClause = append(grantClause, "create_user")
-		}
-		if dataCatalogAdmin {
-			grantClause = append(grantClause, "data_catalog_admin")
-		}
-		if dataCatalogClassifier {
-			grantClause = append(grantClause, "data_catalog_classifier")
-		}
-		if dataCatalogContentAdmin {
-			grantClause = append(grantClause, "data_catalog_content_admin")
-		}
-		if dataCatalogEditor {
-			grantClause = append(grantClause, "data_catalog_editor")
-		}
-		if dataCatalogExporter {
-			grantClause = append(grantClause, "data_catalog_exporter")
-		}
-		if dataCatalogManager {
-			grantClause = append(grantClause, "data_catalog_manager")
-		}
-		if diagnosticMonitoringToolAdmin {
-			grantClause = append(grantClause, "diagnostic_monitoring_tool_admin")
-		}
-		if diagnosticMonitoringToolCreateDiagnostic {
-			grantClause = append(grantClause, "diagnostic_monitoring_tool_create_diagnostic")
-		}
-		if disableCacheQuery {
-			grantClause = append(grantClause, "disable_cache_query")
-		}
-		if impersonator {
-			grantClause = append(grantClause, "impersonator")
-		}
-		if monitorAdmin {
-			grantClause = append(roles, "monitor_admin")
-		}
-		if schedulerAdmin {
-			grantClause = append(roles, "scheduler_admin")
-		}
-		if serverAdmin {
-			grantClause = append(roles, "serveradmin")
-		}
-		sqlStmt += fmt.Sprintf(
-			`
-			GRANT ROLE %s;`,
-			strings.Join(roles, ", "),
-		)
-	}
 
 	err = client.ExecuteSQL(&sqlStmt)
 	if err != nil {
